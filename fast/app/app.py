@@ -41,9 +41,14 @@ async def upload_file(file: UploadFile = File(...),
             )
         )
         
-        if upload_result.response_metadata.status_code == 200:
+        print(
+            "upload status:", upload_result.response_metadata.status_code,
+            "error:", upload_result.response_metadata.error,
+        )
+        
+        if upload_result.response_metadata.http_status_code == 200:
             post = Post(
-                caption - caption,
+                caption = caption,
                 url = upload_result.url,
                 file_type = "video" if file.content_type.startswith("video/") else "image",
                 file_name = upload_result.name
