@@ -1,8 +1,15 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile, Form, Depends
 from app.schemas import PostCreate, PostResponse
 from app.db import Post, create_db_and_tables, get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
+from sqlalchemy import select
+from app.images import imagekit
+from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions
+import shutil
+import os
+import uuid
+import tempfile
 
 @asynccontextmanager
 async def lifespan(app : FastAPI):
@@ -11,33 +18,67 @@ async def lifespan(app : FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-text_posts = {1: {"title": "First Post", "content": "This is the first post."},
-              2: {"title": "Second Post", "content": "This is the second post."},
-              3: {"title": "Third Post", "content": "This is the third post."},
-              4: {"title": "Fourth Post", "content": "This is the fourth post."},
-              5: {"title": "Fifth Post", "content": "This is the fifth post."},
-              6: {"title": "Sixth Post", "content": "This is the sixth post."},
-              7: {"title": "Seventh Post", "content": "This is the seventh post."},
-              8: {"title": "Eighth Post", "content": "This is the eighth post."},
-              9: {"title": "Ninth Post", "content": "This is the ninth post."},
-              10: {"title": "Tenth Post", "content": "This is the tenth post."}}
 
-@app.get("/posts")
-def get_all_posts(limit: int = None):
-    if limit:
-        return list(text_posts.values())[:limit] #return limited posts
-    return text_posts
-
-@app.get("/posts/{id}")
-def get_post(id: int):
-    if id not in text_posts:
-        raise HTTPException(status_code=404, detail="Post not found")
-    return text_posts.get(id)
-
-@app.post("/posts")
-def create_post(post: PostCreate) -> PostResponse:
-    new_post = {"title": post.title, "content": post.content}
-    text_posts[max(text_posts.keys()) + 1] = new_post
-    return new_post
-
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...),
+                      caption: str = Form(""),
+                      session: AsyncSession = Depends(get_async_session)
+                      ):
+    
+    temp_file_path = None
+    
+    try: 
+        with tempfile.NamedTemporaryFile(delete=False,suffix = os.path.splitext(file.filename)[1]) as temp_file:
+            temp_file_path = temp_file.name
+            shutil.copyfileobj(file.file, temp_file) # Save uploaded file to a temporary location
+            
+        upload_result = imagekit.upload_file(
+            file = open(temp_file_path, "rb"),
+            file_name = file.filename,
+            options = UploadFileRequestOptions(
+                use_unique_file_name = True,
+                tags = ["backend_upload"]
+            )
+        )
+        
+        if upload_result.response_metadata.status_code == 200:
+            post = Post(
+                caption - caption,
+                url = upload_result.url,
+                file_type = "video" if file.content_type.startswith("video/") else "image",
+                file_name = upload_result.name
+            )
+            session.add(post)
+            await session.commit() # Save the new post to the database, which will generate the ID and created_at fields
+            await session.refresh(post)
+            return post
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
+    finally:
+        if temp_file_path and os.path.exists(temp_file_path):
+            os.unlink(temp_file_path)
+        file.file.close() # Close the uploaded file
+    
+    
+@app.get("/feed")
+async def get_feed(
+    session: AsyncSession = Depends(get_async_session)
+    ):
+    result = await session.execute(select(Post).order_by(Post.created_at.desc()))
+    posts = [row[0] for row in result.fetchall()] # Extract Post objects from the result
+    
+    posts_data = []
+    for post in posts:
+        posts_data.append(
+            {
+                "id": str(post.id),
+                "caption": post.caption,
+                "url": post.url,
+                "file_type": post.file_type,
+                "file_name": post.file_name,
+                "created_at": post.created_at.isoformat() # Convert datetime to ISO format string
+            }
+                          )
+    return {"posts": posts_data}
 
