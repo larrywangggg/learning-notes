@@ -131,7 +131,7 @@ uv add fastapi
 
 ## 一、uv 怎么安装（macOS / Homebrew 场景）
 
-✅ 最推荐方式（不碰你现有 Python）
+✅ 最推荐方式（不碰现有 Python）
 
 ```bash
 brew install uv
@@ -169,7 +169,7 @@ pip install uv
 - 你以后切 Python 版本，uv 可能“消失”
 - 新手最容易在这里卡住
 
-👉 结论：你是 macOS + 学 FastAPI，用 brew
+
 
 ## uv 安装后你需要理解的 3 件事（非常重要）
 
@@ -186,11 +186,6 @@ uv python list
 uv python install 3.12
 ```
 
-👉 不再纠结：
-
-- python 是 brew 的？
-- 是系统的？
-- 是 conda 的？
 
 3️⃣ uv 会自动创建 .venv
 
@@ -296,8 +291,8 @@ uv add pydantic-settings
 
 👉 自动：
 
-- 更新 pyproject.toml
-- 更新 uv.lock
+- 更新 `pyproject.toml`
+- 更新 `uv.lock`
 
 ➖ 删除依赖
 
@@ -328,27 +323,16 @@ uv run python
 👉 这是正确的方式
 ❌ 不要直接敲 python
 
-# 四、uv add 常见依赖示例（保留关键内容）
+# 四、uv add 常见依赖示例
 
-先记住一句：uv add = 把依赖加进项目 + 自动更新配置 + 锁版本 + 可复现
+先记住一句：**uv add = 把依赖加进项目 + 自动更新配置 + 锁版本 + 可复现**
 
 ## 1) python-dotenv
-
-一句话结论
 
 ```bash
 uv add python-dotenv
 ```
 
-👉 把 python-dotenv 加进当前 uv 项目的依赖
-
-等价于：
-
-```bash
-pip install python-dotenv
-```
-
-但 uv 会多做很多事。
 
 python-dotenv 是什么？
 
@@ -418,7 +402,7 @@ app_name = os.getenv("APP_NAME")
 debug = os.getenv("DEBUG") == "true"
 ```
 
-FastAPI 更“正统”的用法（你以后会学到）
+
 
 FastAPI 官方推荐搭配 Pydantic Settings：
 
@@ -441,6 +425,7 @@ settings = Settings()
 
 👉 这是生产级写法
 
+
 新手最常见误解（帮你避坑）
 
 ❌ 误解 1：uv 自带 dotenv？
@@ -449,7 +434,7 @@ settings = Settings()
 ❌ 误解 2：.env 会自动生效？
 不会，必须：
 
-- 用 load_dotenv()
+- 用 **`load_dotenv()`**
 - 或用 Pydantic Settings
 
 ❌ 误解 3：.env 可以提交到 Git？
@@ -462,7 +447,6 @@ settings = Settings()
 
 ## 2) imagekitio
 
-一句话结论
 
 ```bash
 uv add imagekitio
@@ -470,17 +454,6 @@ uv add imagekitio
 
 👉 把 imagekitio（ImageKit 官方 Python SDK）加入你当前 uv 项目的依赖
 
-等价于旧写法：
-
-```bash
-pip install imagekitio
-```
-
-但 uv 会自动写配置 + 锁版本 + 管环境。
-
-imagekitio 是什么？
-
-imagekitio = ImageKit 的 Python SDK
 
 ImageKit 是一个 图片 / 视频 CDN + 实时处理平台，常用于：
 
@@ -502,7 +475,7 @@ ImageKit 是一个 图片 / 视频 CDN + 实时处理平台，常用于：
 
 imagekitio 在 FastAPI 中的“标准用法”
 
-1️⃣ 配置环境变量（强烈推荐）
+1️⃣ 配置环境变量
 
 .env
 
@@ -512,7 +485,8 @@ IMAGEKIT_PRIVATE_KEY=yyy
 IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your_id
 ```
 
-👉 不要写死在代码里
+👉 这几个KEY在imagekitio的个人账号的 `developer options` > `API Keys`里。
+👉 不要写死在代码里。
 
 2️⃣ 初始化 ImageKit 客户端
 
@@ -555,7 +529,7 @@ async def upload_image(file: UploadFile = File(...)):
     return {"url": result["url"]}
 ```
 
-ImageKit URL 的“真正威力”（你以后一定会用）
+ImageKit URL 的“真正威力”
 
 ImageKit 支持 URL 参数即处理：
 
@@ -563,7 +537,7 @@ https://ik.imagekit.io/xxx/avatar.png?tr=w-300,h-300,fo-auto
 
 - 不重新上传
 - 不重新存储
-- 即时裁剪 / 压缩
+- 通过改变的URL里的参数实现即时裁剪 / 压缩 
 
 👉 对性能和存储成本极其友好
 
@@ -654,12 +628,6 @@ uvicorn[standard] 通常包含
 
 👉 99% 的 FastAPI 项目都应该用 [standard]
 
-体验差别（简版）
-
-- 只装 uvicorn：reload 可能慢 / WebSocket 支持不完整 / .env 不一定生效
-- 装 uvicorn[standard]：reload 更快 / 性能更好 / WebSocket + dotenv 都 ready
-
-uv 会帮你做什么（你不用操心）
 
 ```bash
 uv add uvicorn[standard]
@@ -722,10 +690,14 @@ aiosqlite 解决的正是这一点。
 
 uv add aiosqlite 背后发生了什么？
 
-1️⃣ 安装到项目虚拟环境
-2️⃣ 写入 pyproject.toml
-3️⃣ 锁定到 uv.lock
-4️⃣ uv sync 可复现
+- 1️⃣ 安装到项目虚拟环境
+
+- 2️⃣ 写入 pyproject.toml
+
+- 3️⃣ 锁定到 uv.lock
+
+- 4️⃣ uv sync 可复现
+
 
 FastAPI + aiosqlite 的最小示例
 
