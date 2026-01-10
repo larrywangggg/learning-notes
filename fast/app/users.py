@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, FastAPIUsers, UUIDMixin, models
+from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin, models
 from fastapi_users.authentication import (
     AuthenticationBackend, 
     BearerTransport,
@@ -12,7 +12,7 @@ from app.db import User, get_user_db
 
 SECRET = "GOUTLESSMAN-SECRET-KEY"  # Change this to a strong secret in production
 
-class UserManager(UUIDMixin,BaseUserManager[User,uuid.UUID]):
+class UserManager(UUIDIDMixin,BaseUserManager[User,uuid.UUID]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
     
@@ -30,5 +30,5 @@ auth_backend = AuthenticationBackend(
     transport = bearer_transport,
     get_strategy = get_jwt_strategy,
 )
-fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, auth_backend)
+fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
 current_active_user = fastapi_users.current_user(active=True)

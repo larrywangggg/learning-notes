@@ -23,7 +23,7 @@ class Post(Base): #define Post table
     __tablename__ = "posts"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) # Generate a unique identifier for each post, as a primary key
-    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id", nullable = False)) # Foreign key in Post table referencing User table, indicating which user created the post
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=False) # Foreign key in Post table referencing User table, indicating which user created the post
     caption = Column(Text)
     url = Column(String, nullable=False)
     file_type = Column(String, nullable=False)

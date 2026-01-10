@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fastgram</title>
+    <style>
+      :root {
+        --paper: #f7f1e8;
+        --ink: #1f1915;
+        --muted: #5b524c;
+        --accent: #ef5b3c;
+        --accent-2: #0f6e66;
+        --accent-3: #f1b24a;
+        --card: #fff8f1;
+        --stroke: rgba(31, 25, 21, 0.14);
+        --shadow: 0 26px 55px rgba(20, 16, 14, 0.12);
+        --radius: 20px;
+        --font-display: "Fraunces", "Iowan Old Style", "Palatino", serif;
+        --font-body: "Space Grotesk", "Avenir Next", "Trebuchet MS", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: var(--font-body);
+        color: var(--ink);
+        background: radial-gradient(
+            900px circle at 10% -10%,
+            #fde2c6 0%,
+            rgba(253, 226, 198, 0.2) 55%,
+            transparent 70%
+          ),
+          radial-gradient(
+            800px circle at 100% 15%,
+            #d7f0ed 0%,
+            rgba(215, 240, 237, 0.2) 55%,
+            transparent 70%
+          ),
+          linear-gradient(160deg, #f4eee5 0%, #f7f2ea 60%, #fbf9f5 100%);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: -20%;
+        background-image: repeating-linear-gradient(
+          135deg,
+          rgba(31, 25, 21, 0.05) 0px,
+          rgba(31, 25, 21, 0.05) 1px,
+          transparent 1px,
+          transparent 10px
+        );
+        opacity: 0.25;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(
+            340px circle at 85% 12%,
+            rgba(241, 178, 74, 0.35),
+            transparent 70%
+          ),
+          radial-gradient(
+            360px circle at 12% 75%,
+            rgba(15, 110, 102, 0.2),
+            transparent 70%
+          );
+        pointer-events: none;
+        z-index: 0;
+        animation: drift 12s ease-in-out infinite;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      img,
+      video {
+        max-width: 100%;
+        display: block;
+      }
+
+      .status {
+        position: fixed;
+        top: 18px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-12px);
+        padding: 10px 18px;
+        border-radius: 999px;
+        border: 1px solid var(--stroke);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: var(--shadow);
+        font-size: 0.92rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        z-index: 4;
+      }
+
+      .status.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .status[data-type="error"] {
+        border-color: rgba(239, 91, 60, 0.4);
+        color: #7b2f1f;
+        background: #fff4ef;
+      }
+
+      .status[data-type="success"] {
+        border-color: rgba(15, 110, 102, 0.4);
+        color: #0f4d46;
+        background: #eef9f7;
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        width: min(1200px, 92vw);
+        margin: 0 auto;
+        padding: 28px 0 80px;
+      }
+
+      .lift {
+        animation: lift 0.9s ease both;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 12px 18px;
+        border-radius: 999px;
+        border: 1px solid var(--stroke);
+        background: rgba(255, 255, 255, 0.75);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+        position: sticky;
+        top: 16px;
+        z-index: 3;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-3));
+        box-shadow: 0 14px 26px rgba(239, 91, 60, 0.25);
+        position: relative;
+      }
+
+      .brand-mark::after {
+        content: "";
+        position: absolute;
+        inset: 10px;
+        border-radius: 10px;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+      }
+
+      .brand-title {
+        font-family: var(--font-display);
+        font-size: 1.35rem;
+        letter-spacing: 0.02em;
+      }
+
+      .brand-sub {
+        display: block;
+        font-size: 0.78rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+      }
+
+      .search {
+        flex: 1;
+        max-width: 360px;
+        position: relative;
+      }
+
+      .search input {
+        width: 100%;
+        border-radius: 999px;
+        border: 1px solid var(--stroke);
+        padding: 10px 16px 10px 40px;
+        font-size: 0.95rem;
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .search span {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .chip {
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(15, 110, 102, 0.25);
+        font-size: 0.85rem;
+        color: var(--accent-2);
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 999px;
+        border: 1px solid var(--stroke);
+        font-weight: 600;
+        font-size: 0.92rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease,
+          border-color 0.3s ease;
+        background: rgba(255, 255, 255, 0.85);
+        cursor: pointer;
+      }
+
+      .btn.primary {
+        background: linear-gradient(135deg, var(--accent), #f28f40);
+        color: #fff7f1;
+        border-color: transparent;
+        box-shadow: 0 16px 32px rgba(239, 91, 60, 0.25);
+      }
+
+      .btn.ghost {
+        background: rgba(255, 255, 255, 0.7);
+      }
+
+      .btn.small {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 28px rgba(31, 25, 21, 0.12);
+      }
+
+      .hero {
+        margin: 60px 0 32px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+        gap: 32px;
+        align-items: center;
+      }
+
+      .hero h1 {
+        font-family: var(--font-display);
+        font-size: clamp(2.4rem, 4.5vw, 3.6rem);
+        margin: 0 0 16px;
+      }
+
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+        font-size: 1.03rem;
+      }
+
+      .hero-card {
+        padding: 22px;
+        border-radius: var(--radius);
+        border: 1px solid var(--stroke);
+        background: rgba(255, 255, 255, 0.85);
+        box-shadow: var(--shadow);
+      }
+
+      .hero-metrics {
+        display: grid;
+        gap: 12px;
+      }
+
+      .metric {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.95rem;
+        color: var(--muted);
+      }
+
+      .metric strong {
+        color: var(--ink);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+        gap: 28px;
+      }
+
+      .feed {
+        display: grid;
+        gap: 20px;
+      }
+
+      .composer {
+        border-radius: var(--radius);
+        border: 1px solid var(--stroke);
+        background: var(--card);
+        box-shadow: var(--shadow);
+        padding: 22px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .composer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .composer-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .composer-form {
+        display: grid;
+        gap: 12px;
+      }
+
+      .composer-form textarea {
+        width: 100%;
+        min-height: 90px;
+        border-radius: 16px;
+        border: 1px solid var(--stroke);
+        padding: 12px 14px;
+        font-family: var(--font-body);
+        resize: vertical;
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .composer-form input[type="file"] {
+        border: 1px dashed rgba(15, 110, 102, 0.35);
+        border-radius: 16px;
+        padding: 18px;
+        background: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+      }
+
+      .preview {
+        border-radius: 16px;
+        border: 1px solid var(--stroke);
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.85);
+        display: grid;
+        gap: 10px;
+      }
+
+      .preview .placeholder {
+        font-size: 0.9rem;
+        color: var(--muted);
+        text-align: center;
+        padding: 20px 0;
+      }
+
+      .preview img,
+      .preview video {
+        border-radius: 14px;
+        max-height: 320px;
+        object-fit: cover;
+      }
+
+      .composer-lock {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: rgba(247, 241, 232, 0.9);
+        font-weight: 600;
+        color: var(--accent-2);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        text-align: center;
+        padding: 20px;
+      }
+
+      body[data-auth="guest"] .composer-lock {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .story-strip {
+        display: flex;
+        gap: 14px;
+        padding: 8px 0 4px;
+      }
+
+      .story {
+        width: 54px;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+
+      .story span {
+        display: block;
+        width: 54px;
+        height: 54px;
+        border-radius: 18px;
+        border: 2px solid rgba(239, 91, 60, 0.4);
+        background: linear-gradient(
+          140deg,
+          rgba(239, 91, 60, 0.2),
+          rgba(15, 110, 102, 0.2)
+        );
+        margin-bottom: 6px;
+      }
+
+      .feed-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .feed-header h2 {
+        font-family: var(--font-display);
+        margin: 0;
+        font-size: 1.6rem;
+      }
+
+      .feed-list {
+        display: grid;
+        gap: 18px;
+      }
+
+      .post-card {
+        border-radius: var(--radius);
+        border: 1px solid var(--stroke);
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: var(--shadow);
+        padding: 18px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .post-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .post-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--accent-2), #4cc1b5);
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-weight: 700;
+      }
+
+      .post-meta {
+        display: grid;
+        gap: 2px;
+      }
+
+      .post-meta span {
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+
+      .post-media {
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid rgba(31, 25, 21, 0.1);
+        background: #f3efe9;
+      }
+
+      .post-media img,
+      .post-media video {
+        width: 100%;
+        max-height: 520px;
+        object-fit: cover;
+      }
+
+      .post-caption {
+        font-size: 0.98rem;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .post-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .post-actions .tag {
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(239, 91, 60, 0.2);
+        font-size: 0.78rem;
+        color: var(--accent);
+      }
+
+      .empty-state {
+        padding: 32px;
+        border-radius: var(--radius);
+        border: 1px dashed rgba(15, 110, 102, 0.3);
+        color: var(--muted);
+        text-align: center;
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      .sidebar {
+        display: grid;
+        gap: 18px;
+        align-content: start;
+      }
+
+      .card {
+        padding: 20px;
+        border-radius: var(--radius);
+        border: 1px solid var(--stroke);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: var(--shadow);
+      }
+
+      .card h3 {
+        margin: 0 0 12px;
+        font-size: 1.2rem;
+      }
+
+      .profile-card h3 {
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+      }
+
+      .profile-card .profile-email {
+        font-size: 0.92rem;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+
+      .list {
+        display: grid;
+        gap: 10px;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        color: var(--muted);
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(31, 25, 21, 0.35);
+        display: grid;
+        place-items: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 5;
+      }
+
+      .modal.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .modal-card {
+        width: min(420px, 90vw);
+        padding: 24px;
+        border-radius: var(--radius);
+        border: 1px solid var(--stroke);
+        background: #fffaf3;
+        box-shadow: var(--shadow);
+        display: grid;
+        gap: 16px;
+      }
+
+      .tab-row {
+        display: flex;
+        gap: 10px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        border-radius: 12px;
+        padding: 10px;
+        border: 1px solid var(--stroke);
+        background: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+      }
+
+      .tab-btn.active {
+        border-color: rgba(239, 91, 60, 0.3);
+        background: rgba(239, 91, 60, 0.12);
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .auth-form {
+        display: grid;
+        gap: 12px;
+      }
+
+      .auth-form input {
+        border-radius: 12px;
+        border: 1px solid var(--stroke);
+        padding: 12px;
+        font-size: 0.95rem;
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        color: var(--muted);
+        justify-self: end;
+      }
+
+      .helper {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      @keyframes drift {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-12px);
+        }
+      }
+
+      @keyframes lift {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 980px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .search {
+          order: 3;
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .topbar {
+          position: static;
+        }
+
+        .brand-title {
+          font-size: 1.15rem;
+        }
+
+        .hero {
+          margin-top: 32px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body data-auth="guest">
+    <div class="status" id="statusBar" role="status" aria-live="polite"></div>
+    <div class="page">
+      <header class="topbar lift">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div>
+            <div class="brand-title">Fastgram</div>
+            <span class="brand-sub">Media studio</span>
+          </div>
+        </div>
+        <div class="search">
+          <span>Search</span>
+          <input type="search" placeholder="Search tags or captions" />
+        </div>
+        <div class="top-actions">
+          <span class="chip" id="sessionEmail">Guest</span>
+          <button class="btn ghost" id="loginTrigger">Sign in</button>
+          <button class="btn ghost" id="logoutBtn" hidden>Sign out</button>
+          <button class="btn primary" id="uploadTrigger">New post</button>
+        </div>
+      </header>
+
+      <section class="hero lift">
+        <div>
+          <h1>Share fast, build a visual habit.</h1>
+          <p>
+            Fastgram is a lightweight feed for image and video experiments. Sign
+            in, upload a clip, and keep a clean timeline of your work.
+          </p>
+        </div>
+        <div class="hero-card">
+          <div class="hero-metrics">
+            <div class="metric">
+              <span>Live uploads</span>
+              <strong>ImageKit</strong>
+            </div>
+            <div class="metric">
+              <span>Auth</span>
+              <strong>JWT</strong>
+            </div>
+            <div class="metric">
+              <span>Database</span>
+              <strong>SQLite</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main class="layout">
+        <section class="feed">
+          <div class="composer lift" id="composer">
+            <div class="composer-header">
+              <div class="composer-title">Create a post</div>
+              <span class="chip">Image or video</span>
+            </div>
+            <form class="composer-form" id="uploadForm">
+              <input
+                id="fileInput"
+                type="file"
+                accept="image/*,video/*"
+                required
+              />
+              <div class="preview" id="preview">
+                <div class="placeholder">Select a file to preview.</div>
+                <img id="previewImage" alt="" hidden />
+                <video id="previewVideo" controls muted playsinline hidden></video>
+              </div>
+              <textarea
+                id="captionInput"
+                placeholder="Write a caption..."
+              ></textarea>
+              <button class="btn primary" type="submit">Upload</button>
+            </form>
+            <div class="composer-lock" id="composerLock">
+              Sign in to upload. Your feed unlocks after login.
+            </div>
+          </div>
+
+          <div class="story-strip lift">
+            <div class="story"><span></span>Studio</div>
+            <div class="story"><span></span>Night</div>
+            <div class="story"><span></span>Motion</div>
+            <div class="story"><span></span>Field</div>
+          </div>
+
+          <div class="feed-header">
+            <h2>Latest posts</h2>
+            <button class="btn ghost small" id="refreshBtn">Refresh</button>
+          </div>
+
+          <div class="feed-list" id="feedList"></div>
+          <div class="empty-state" id="emptyState">
+            Sign in to view the feed, then upload your first post.
+          </div>
+        </section>
+
+        <aside class="sidebar">
+          <div class="card profile-card lift">
+            <h3>Your studio</h3>
+            <div class="profile-email" id="profileEmail">
+              Guest mode. Sign in to unlock uploads.
+            </div>
+            <button class="btn primary" id="sidebarAuthBtn">
+              Sign in or register
+            </button>
+          </div>
+          <div class="card lift">
+            <h3>Quick tips</h3>
+            <ul class="list">
+              <li>Upload JPG, PNG, MP4, or MOV.</li>
+              <li>Add a short caption with tags.</li>
+              <li>Delete your own posts from the feed.</li>
+            </ul>
+          </div>
+          <div class="card lift">
+            <h3>Next steps</h3>
+            <ul class="list">
+              <li>Connect a real profile avatar.</li>
+              <li>Add likes and comments.</li>
+              <li>Ship notifications and stories.</li>
+            </ul>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <div class="modal" id="authModal" aria-hidden="true">
+      <div class="modal-card">
+        <button class="modal-close" id="authClose" aria-label="Close">
+          &times;
+        </button>
+        <div class="tab-row">
+          <button class="tab-btn active" data-tab="login">Sign in</button>
+          <button class="tab-btn" data-tab="register">Register</button>
+        </div>
+        <form class="auth-form" id="loginForm" data-tab-panel="login">
+          <input id="loginEmail" type="email" placeholder="Email" required />
+          <input
+            id="loginPassword"
+            type="password"
+            placeholder="Password"
+            required
+          />
+          <button class="btn primary" type="submit">Sign in</button>
+          <div class="helper">
+            Use your email as the username for login.
+          </div>
+        </form>
+        <form
+          class="auth-form"
+          id="registerForm"
+          data-tab-panel="register"
+          hidden
+        >
+          <input id="regEmail" type="email" placeholder="Email" required />
+          <input
+            id="regPassword"
+            type="password"
+            placeholder="Password"
+            required
+          />
+          <button class="btn primary" type="submit">Create account</button>
+          <div class="helper">
+            Register with an email and a strong password.
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE =
+        window.location.origin === "null" ? "http://localhost:8000" : "";
+      const state = {
+        token: localStorage.getItem("fast_token") || "",
+        email: localStorage.getItem("fast_email") || "",
+      };
+
+      const statusBar = document.getElementById("statusBar");
+      const sessionEmail = document.getElementById("sessionEmail");
+      const profileEmail = document.getElementById("profileEmail");
+      const loginTrigger = document.getElementById("loginTrigger");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const sidebarAuthBtn = document.getElementById("sidebarAuthBtn");
+      const authModal = document.getElementById("authModal");
+      const authClose = document.getElementById("authClose");
+      const uploadTrigger = document.getElementById("uploadTrigger");
+      const refreshBtn = document.getElementById("refreshBtn");
+      const uploadForm = document.getElementById("uploadForm");
+      const fileInput = document.getElementById("fileInput");
+      const captionInput = document.getElementById("captionInput");
+      const preview = document.getElementById("preview");
+      const previewImage = document.getElementById("previewImage");
+      const previewVideo = document.getElementById("previewVideo");
+      const feedList = document.getElementById("feedList");
+      const emptyState = document.getElementById("emptyState");
+      const loginForm = document.getElementById("loginForm");
+      const registerForm = document.getElementById("registerForm");
+      const tabs = document.querySelectorAll(".tab-btn");
+
+      const authHeaders = () =>
+        state.token ? { Authorization: `Bearer ${state.token}` } : {};
+
+      const setStatus = (message, type = "info") => {
+        statusBar.textContent = message;
+        statusBar.dataset.type = type;
+        statusBar.classList.add("show");
+        clearTimeout(statusBar._timer);
+        statusBar._timer = setTimeout(
+          () => statusBar.classList.remove("show"),
+          3000
+        );
+      };
+
+      const setAuthState = (isAuthed) => {
+        document.body.dataset.auth = isAuthed ? "authed" : "guest";
+        sessionEmail.textContent = isAuthed ? state.email : "Guest";
+        profileEmail.textContent = isAuthed
+          ? `Signed in as ${state.email}`
+          : "Guest mode. Sign in to unlock uploads.";
+        loginTrigger.hidden = isAuthed;
+        logoutBtn.hidden = !isAuthed;
+        sidebarAuthBtn.hidden = isAuthed;
+      };
+
+      const openModal = () => {
+        authModal.classList.add("open");
+        authModal.setAttribute("aria-hidden", "false");
+      };
+
+      const closeModal = () => {
+        authModal.classList.remove("open");
+        authModal.setAttribute("aria-hidden", "true");
+      };
+
+      const switchTab = (tabName) => {
+        tabs.forEach((tab) => {
+          tab.classList.toggle("active", tab.dataset.tab === tabName);
+        });
+        document
+          .querySelectorAll("[data-tab-panel]")
+          .forEach((panel) => {
+            panel.hidden = panel.dataset.tabPanel !== tabName;
+          });
+      };
+
+      const timeAgo = (iso) => {
+        const date = new Date(iso);
+        const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+        const ranges = [
+          { label: "d", seconds: 86400 },
+          { label: "h", seconds: 3600 },
+          { label: "m", seconds: 60 },
+        ];
+        for (const range of ranges) {
+          const count = Math.floor(seconds / range.seconds);
+          if (count >= 1) {
+            return `${count}${range.label} ago`;
+          }
+        }
+        return "just now";
+      };
+
+      const renderFeed = (posts) => {
+        feedList.innerHTML = "";
+        if (!posts.length) {
+          emptyState.textContent = "No posts yet. Upload the first one.";
+          emptyState.hidden = false;
+          return;
+        }
+        emptyState.hidden = true;
+        posts.forEach((post) => {
+          const card = document.createElement("article");
+          card.className = "post-card";
+          const initials = post.email ? post.email[0].toUpperCase() : "U";
+          card.innerHTML = `
+            <div class="post-head">
+              <div class="post-user">
+                <div class="avatar">${initials}</div>
+                <div class="post-meta">
+                  <strong>${post.email || "Unknown"}</strong>
+                  <span>${timeAgo(post.created_at)}</span>
+                </div>
+              </div>
+              ${
+                post.is_owner
+                  ? `<button class="btn ghost small" data-action="delete" data-id="${post.id}">Delete</button>`
+                  : ""
+              }
+            </div>
+            <div class="post-media">
+              ${
+                post.file_type === "video"
+                  ? `<video src="${post.url}" controls playsinline></video>`
+                  : `<img src="${post.url}" alt="${post.file_name || "Post"}" loading="lazy" />`
+              }
+            </div>
+            <div class="post-caption">${post.caption || "No caption."}</div>
+            <div class="post-actions">
+              <span class="tag">${post.file_type}</span>
+              <span class="tag">${post.file_name || "media"}</span>
+            </div>
+          `;
+          feedList.appendChild(card);
+        });
+      };
+
+      const loadFeed = async () => {
+        if (!state.token) {
+          emptyState.textContent =
+            "Sign in to view the feed, then upload your first post.";
+          emptyState.hidden = false;
+          feedList.innerHTML = "";
+          return;
+        }
+        try {
+          const response = await fetch(`${API_BASE}/feed`, {
+            headers: {
+              ...authHeaders(),
+            },
+          });
+          if (!response.ok) {
+            throw new Error("Failed to load feed.");
+          }
+          const data = await response.json();
+          renderFeed(data.posts || []);
+        } catch (error) {
+          setStatus(error.message, "error");
+        }
+      };
+
+      const handleLogin = async (event) => {
+        event.preventDefault();
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+        try {
+          const response = await fetch(`${API_BASE}/auth/jwt/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({ username: email, password }),
+          });
+          if (!response.ok) {
+            throw new Error("Login failed. Check your credentials.");
+          }
+          const data = await response.json();
+          state.token = data.access_token;
+          state.email = email;
+          localStorage.setItem("fast_token", state.token);
+          localStorage.setItem("fast_email", state.email);
+          setAuthState(true);
+          closeModal();
+          setStatus("Signed in.", "success");
+          loadFeed();
+        } catch (error) {
+          setStatus(error.message, "error");
+        }
+      };
+
+      const handleRegister = async (event) => {
+        event.preventDefault();
+        const email = document.getElementById("regEmail").value.trim();
+        const password = document.getElementById("regPassword").value;
+        try {
+          const response = await fetch(`${API_BASE}/auth/register`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
+          if (!response.ok) {
+            throw new Error("Registration failed.");
+          }
+          setStatus("Account created. Sign in to continue.", "success");
+          document.getElementById("loginEmail").value = email;
+          switchTab("login");
+        } catch (error) {
+          setStatus(error.message, "error");
+        }
+      };
+
+      const handleUpload = async (event) => {
+        event.preventDefault();
+        if (!state.token) {
+          openModal();
+          return;
+        }
+        const file = fileInput.files[0];
+        if (!file) {
+          setStatus("Select a file first.", "error");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("caption", captionInput.value.trim());
+        try {
+          const response = await fetch(`${API_BASE}/upload`, {
+            method: "POST",
+            headers: {
+              ...authHeaders(),
+            },
+            body: formData,
+          });
+          if (!response.ok) {
+            throw new Error("Upload failed.");
+          }
+          captionInput.value = "";
+          fileInput.value = "";
+          previewImage.hidden = true;
+          previewVideo.hidden = true;
+          preview.querySelector(".placeholder").hidden = false;
+          setStatus("Upload complete.", "success");
+          loadFeed();
+        } catch (error) {
+          setStatus(error.message, "error");
+        }
+      };
+
+      const handleDelete = async (id) => {
+        try {
+          const response = await fetch(`${API_BASE}/post/${id}`, {
+            method: "DELETE",
+            headers: {
+              ...authHeaders(),
+            },
+          });
+          if (!response.ok) {
+            throw new Error("Delete failed.");
+          }
+          setStatus("Post deleted.", "success");
+          loadFeed();
+        } catch (error) {
+          setStatus(error.message, "error");
+        }
+      };
+
+      const updatePreview = () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        preview.querySelector(".placeholder").hidden = true;
+        if (file.type.startsWith("video/")) {
+          previewVideo.src = url;
+          previewVideo.hidden = false;
+          previewImage.hidden = true;
+        } else {
+          previewImage.src = url;
+          previewImage.hidden = false;
+          previewVideo.hidden = true;
+        }
+      };
+
+      feedList.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-action='delete']");
+        if (button) {
+          handleDelete(button.dataset.id);
+        }
+      });
+
+      fileInput.addEventListener("change", updatePreview);
+      uploadForm.addEventListener("submit", handleUpload);
+      loginForm.addEventListener("submit", handleLogin);
+      registerForm.addEventListener("submit", handleRegister);
+      refreshBtn.addEventListener("click", loadFeed);
+      loginTrigger.addEventListener("click", openModal);
+      sidebarAuthBtn.addEventListener("click", openModal);
+      authClose.addEventListener("click", closeModal);
+      uploadTrigger.addEventListener("click", () => {
+        if (!state.token) {
+          openModal();
+          return;
+        }
+        fileInput.click();
+      });
+
+      tabs.forEach((tab) =>
+        tab.addEventListener("click", () => switchTab(tab.dataset.tab))
+      );
+
+      logoutBtn.addEventListener("click", () => {
+        state.token = "";
+        state.email = "";
+        localStorage.removeItem("fast_token");
+        localStorage.removeItem("fast_email");
+        setAuthState(false);
+        setStatus("Signed out.", "success");
+        loadFeed();
+      });
+
+      setAuthState(!!state.token);
+      loadFeed();
+    </script>
+  </body>
+</html>
