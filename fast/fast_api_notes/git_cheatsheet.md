@@ -1,0 +1,31 @@
+# ✅ Git Common Commands Cheatsheet
+
+| Category | Command | Description |
+|--------|--------|-------------|
+| Install | git --version | Check whether Git is installed |
+| Install | brew install git | Install Git on macOS via Homebrew |
+| Init | git init | Initialise a Git repository in the current directory |
+| Status | git status | Show the current repository status (most used) |
+| Clone | git clone <repo_url> | Clone a remote repository from GitHub |
+| Config | git config --global user.name "Name" | Set global Git username |
+| Config | git config --global user.email "email" | Set global Git email |
+| Stage | git add . | Stage all modified files |
+| Stage | git add <file> | Stage a specific file |
+| Commit | git commit -m "message" | Commit staged changes |
+| Commit | git commit --amend | Edit the most recent commit |
+| Push | git push | Push local commits to the remote repository |
+| Push | git push -u origin main | First push and set upstream branch |
+| Pull | git pull | Fetch and merge changes from remote |
+| Branch | git branch | List local branches |
+| Branch | git branch <name> | Create a new branch |
+| Branch | git checkout <name> | Switch to an existing branch |
+| Branch | git checkout -b <name> | Create and switch to a new branch |
+| Merge | git merge <branch> | Merge a branch into the current branch |
+| Remote | git remote -v | Show remote repository URLs |
+| Remote | git remote add origin <url> | Add a remote repository |
+| History | git log | View full commit history |
+| History | git log --oneline | View concise commit history |
+| Reset | git reset --hard HEAD~1 | Reset to the previous commit (use with caution) |
+| Discard | git checkout . | Discard all unstaged local changes |
+| Ignore | .gitignore | Specify files to be ignored by Git |
+| Help | git help | Show Git help information |
