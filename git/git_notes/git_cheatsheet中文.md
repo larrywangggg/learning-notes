@@ -25,6 +25,15 @@
 | 远程 | git remote add origin <url> | 添加远程仓库 |
 | 历史 | git log | 查看完整提交历史 |
 | 历史 | git log --oneline | 查看简洁提交历史 |
+| 覆盖 | git restore file | 用最近一次 commit（HEAD）覆盖工作区文件 |
+| 覆盖 | git restore --source=staging file | 用暂存区内容覆盖工作区文件 |
+| 覆盖 | git restore --source=<commit> file | 用指定提交版本覆盖工作区文件 |
+| 撤销 | git restore --staged file | 撤销 add（暂存区回退到 HEAD） |
+| 回退 | git reset --soft HEAD~1 | 回退提交，保留修改在暂存区 |
+| 回退 | git reset --mixed HEAD~1 | 回退提交，保留修改在工作区（默认） |
+| 回退 | git reset --hard HEAD~1 | 回退提交并丢弃所有修改（慎用） |
+| 放弃 | git checkout -- file | 放弃工作区修改（旧写法） |
+| 放弃 | git checkout <commit> -- file | 用指定提交版本覆盖文件（旧写法） |
 | 回退 | git reset --hard HEAD~1 | 回退到上一个提交（慎用） |
 | 放弃 | git checkout . | 放弃所有未暂存的修改 |
 | 忽略 | .gitignore | 指定不被 Git 跟踪的文件 |

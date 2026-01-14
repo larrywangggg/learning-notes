@@ -25,6 +25,15 @@
 | Remote | git remote add origin <url> | Add a remote repository |
 | History | git log | View full commit history |
 | History | git log --oneline | View concise commit history |
+| Restore | git restore file | Restore the working directory file from the latest commit (HEAD) |
+| Restore | git restore --source=staging file | Restore the working directory file from the staging area |
+| Restore | git restore --source=<commit> file | Restore the working directory file from a specific commit |
+| Undo | git restore --staged file | Unstage a file (reset staging area back to HEAD) |
+| Rollback | git reset --soft HEAD~1 | Roll back the last commit, keep changes in staging area |
+| Rollback | git reset --mixed HEAD~1 | Roll back the last commit, keep changes in working directory (default) |
+| Rollback | git reset --hard HEAD~1 | Roll back the last commit and discard all changes (DANGEROUS) |
+| Discard | git checkout -- file | Discard working directory changes (legacy syntax) |
+| Discard | git checkout <commit> -- file | Restore file from a specific commit (legacy syntax) |
 | Reset | git reset --hard HEAD~1 | Reset to the previous commit (use with caution) |
 | Discard | git checkout . | Discard all unstaged local changes |
 | Ignore | .gitignore | Specify files to be ignored by Git |
