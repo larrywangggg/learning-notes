@@ -14,17 +14,22 @@
 | 提交 | git commit -m "message" | 提交一次版本记录 |
 | 提交 | git commit --amend | 修改最近一次提交 |
 | 推送 | git push | 推送本地提交到远程仓库 |
+| 推送 | git push origin <branch> | 推送指定本地分支到远程仓库 |
 | 推送 | git push -u origin main | 首次推送并绑定远程分支 |
 | 拉取 | git pull | 拉取远程最新代码并合并 |
+| 拉取 | git pull origin <branch> | 拉取指定远程分支并合并 |
 | 分支 | git branch | 查看本地分支 |
 | 分支 | git branch <name> | 新建分支 |
+| 分支 | git branch -d <name> | 删除本地分支 |
 | 分支 | git checkout <name> | 切换分支 |
 | 分支 | git checkout -b <name> | 新建并切换分支 |
 | 合并 | git merge <branch> | 合并指定分支到当前分支 |
+| 变基 | git rebase <branch> | 将当前分支变基到目标分支 |
 | 远程 | git remote -v | 查看远程仓库地址 |
 | 远程 | git remote add origin <url> | 添加远程仓库 |
 | 历史 | git log | 查看完整提交历史 |
 | 历史 | git log --oneline | 查看简洁提交历史 |
+| 撤销 | git revert <commit> | 新建一次提交以撤销指定提交 |
 | 覆盖 | git restore file | 用最近一次 commit（HEAD）覆盖工作区文件 |
 | 覆盖 | git restore --source=staging file | 用暂存区内容覆盖工作区文件 |
 | 覆盖 | git restore --source=<commit> file | 用指定提交版本覆盖工作区文件 |

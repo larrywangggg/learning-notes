@@ -14,17 +14,22 @@
 | Commit | git commit -m "message" | Commit staged changes |
 | Commit | git commit --amend | Edit the most recent commit |
 | Push | git push | Push local commits to the remote repository |
+| Push | git push origin <branch> | Push a specific local branch to the remote repository |
 | Push | git push -u origin main | First push and set upstream branch |
 | Pull | git pull | Fetch and merge changes from remote |
+| Pull | git pull origin <branch> | Pull changes from a specific remote branch |
 | Branch | git branch | List local branches |
 | Branch | git branch <name> | Create a new branch |
+| Branch | git branch -d <name> | Delete a local branch |
 | Branch | git checkout <name> | Switch to an existing branch |
 | Branch | git checkout -b <name> | Create and switch to a new branch |
 | Merge | git merge <branch> | Merge a branch into the current branch |
+| Rebase | git rebase <branch> | Rebase the current branch onto the target branch |
 | Remote | git remote -v | Show remote repository URLs |
 | Remote | git remote add origin <url> | Add a remote repository |
 | History | git log | View full commit history |
 | History | git log --oneline | View concise commit history |
+| Undo | git revert <commit> | Create a new commit that undoes a specific commit |
 | Restore | git restore file | Restore the working directory file from the latest commit (HEAD) |
 | Restore | git restore --source=staging file | Restore the working directory file from the staging area |
 | Restore | git restore --source=<commit> file | Restore the working directory file from a specific commit |
