@@ -8,7 +8,6 @@ Topics move from **In Progress → Done** as learning milestones are completed.
 ---
 
 ## 🟡 In Progress
-- FastAPI
 - PostgreSQL
 - AWS
 - Docker
@@ -17,6 +16,10 @@ Topics move from **In Progress → Done** as learning milestones are completed.
 - Celery
 - Next.js + TypeScript
 - CI/CD
+---
+
+## 🟢 Done
+- FastAPI
 - Git
 ---
 
@@ -32,4 +35,4 @@ This repository is **learning-focused**, not production-ready.
 
 ---
 
-_Last updated: ongoing_
+_Last updated: 21/01/26_
