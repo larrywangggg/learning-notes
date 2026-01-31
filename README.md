@@ -8,7 +8,6 @@ Topics move from **In Progress → Done** as learning milestones are completed.
 ---
 
 ## 🟡 In Progress
-- PostgreSQL
 - AWS
 - Docker
 - Redis
@@ -21,6 +20,7 @@ Topics move from **In Progress → Done** as learning milestones are completed.
 ## 🟢 Done
 - FastAPI
 - Git
+- PostgreSQL
 ---
 
 ## 📂 Structure
