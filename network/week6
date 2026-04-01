@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMP3310 Week 6 详细笔记</title>
+<style>
+  :root {
+    --accent: #4f46e5;
+    --accent-light: #eef2ff;
+    --accent-border: #c7d2fe;
+    --warn: #d97706;
+    --warn-light: #fefce8;
+    --warn-border: #fde68a;
+    --danger: #dc2626;
+    --danger-light: #fef2f2;
+    --danger-border: #fecaca;
+    --success: #059669;
+    --success-light: #f0fdf4;
+    --success-border: #a7f3d0;
+    --gray: #6b7280;
+    --gray-light: #f9fafb;
+    --gray-border: #e5e7eb;
+    --text: #111827;
+    --text-muted: #6b7280;
+    --bg: #ffffff;
+    --bg-page: #f3f4f6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--bg-page);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 15px;
+  }
+  .wrapper { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* Header */
+  .doc-header {
+    background: var(--accent);
+    color: white;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  .doc-header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+  .doc-header p { opacity: 0.8; font-size: 0.9rem; font-family: sans-serif; }
+
+  /* TOC */
+  .toc {
+    background: var(--bg);
+    border: 1px solid var(--gray-border);
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+  }
+  .toc h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-family: sans-serif; margin-bottom: 1rem; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem 2rem; }
+  .toc a { color: var(--accent); text-decoration: none; font-family: sans-serif; font-size: 0.88rem; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Part header */
+  .part {
+    background: var(--accent);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    margin: 2rem 0 1.2rem;
+    font-family: sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Section */
+  .section {
+    background: var(--bg);
+    border: 1px solid var(--gray-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.2rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--gray-border);
+  }
+  .section-header h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-family: sans-serif;
+    color: var(--text);
+  }
+  .slide-ref {
+    font-size: 0.75rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-family: sans-serif;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 8px;
+    padding: 0.85rem 1.1rem;
+    margin: 1rem 0;
+    font-family: sans-serif;
+    font-size: 0.9rem;
+    border-left: 3px solid;
+  }
+  .callout-key {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: #3730a3;
+  }
+  .callout-warn {
+    background: var(--warn-light);
+    border-color: var(--warn);
+    color: #92400e;
+  }
+  .callout-exam {
+    background: var(--danger-light);
+    border-color: var(--danger);
+    color: #991b1b;
+  }
+  .callout-tip {
+    background: var(--success-light);
+    border-color: var(--success);
+    color: #065f46;
+  }
+  .callout-label {
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: sans-serif;
+    font-size: 0.88rem;
+    margin: 1rem 0;
+  }
+  th {
+    background: var(--gray-light);
+    text-align: left;
+    padding: 8px 12px;
+    font-weight: 600;
+    border: 1px solid var(--gray-border);
+    color: var(--text);
+  }
+  td {
+    padding: 7px 12px;
+    border: 1px solid var(--gray-border);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: var(--gray-light); }
+
+  /* Lists */
+  ul, ol { padding-left: 1.4rem; margin: 0.6rem 0; }
+  li { margin-bottom: 0.35rem; line-height: 1.65; }
+  li ul { margin-top: 0.3rem; }
+
+  /* Code */
+  code {
+    background: var(--gray-light);
+    border: 1px solid var(--gray-border);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+    color: #be185d;
+  }
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.84rem;
+    overflow-x: auto;
+    margin: 0.8rem 0;
+    line-height: 1.6;
+  }
+
+  /* Quote */
+  blockquote {
+    border-left: 3px solid var(--gray-border);
+    padding-left: 1rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 0.8rem 0;
+    font-size: 0.92rem;
+  }
+
+  p { margin-bottom: 0.6rem; }
+  strong { font-weight: 700; }
+
+  h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: sans-serif;
+    color: var(--accent);
+    margin: 1.1rem 0 0.5rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<div class="doc-header">
+  <h1>COMP3310 Week 6 — 完整笔记</h1>
+  <p>涵盖 T5b（HTTP/Web）+ T5c（实时通信）· 对照 Slides + Lecture Transcript</p>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h2>目录</h2>
+  <div class="toc-grid">
+    <div>
+      <p><strong style="font-family:sans-serif;font-size:0.8rem;">Part 1 — HTTP & Web</strong></p>
+      <a href="#s1">1. 传输协议选择基础</a><br>
+      <a href="#s2">2. Web 历史与起源</a><br>
+      <a href="#s3">3. HTTP 版本演进</a><br>
+      <a href="#s4">4. URL 结构详解</a><br>
+      <a href="#s5">5. 静态 vs 动态内容</a><br>
+      <a href="#s6">6. HTTP 8 步流程</a><br>
+      <a href="#s7">7. 请求方法</a><br>
+      <a href="#s8">8. 响应状态码</a><br>
+      <a href="#s9">9. Telnet 实验解读</a><br>
+      <a href="#s10">10. HTTP Headers 详解</a><br>
+      <a href="#s11">11. 无状态与 Cookie</a><br>
+      <a href="#s12">12. 协议性能问题</a><br>
+      <a href="#s13">13. 持久连接与流水线</a><br>
+      <a href="#s14">14. 真实性能测试工具</a><br>
+      <a href="#s15">15. 缓存机制</a><br>
+      <a href="#s16">16. 代理（Proxy）</a><br>
+      <a href="#s17">17. CDN</a><br>
+      <a href="#s18">18. HTTP 2.0 / 3.0 / QUIC</a><br>
+      <a href="#s19">19. HTTP 被滥用为传输协议</a><br>
+    </div>
+    <div>
+      <p><strong style="font-family:sans-serif;font-size:0.8rem;">Part 2 — 实时通信</strong></p>
+      <a href="#r1">1. 实时流量的挑战</a><br>
+      <a href="#r2">2. 实时性要求与 Trade-off</a><br>
+      <a href="#r3">3. 网络延迟的构成</a><br>
+      <a href="#r4">4. Jitter（包延迟变化）</a><br>
+      <a href="#r5">5. 接收端缓冲区机制</a><br>
+      <a href="#r6">6. 缓冲区 Trade-off</a><br>
+      <a href="#r7">7. 修复手段</a><br>
+      <a href="#r8">8. IP Multicast</a><br>
+      <a href="#r9">9. 弹性缓冲 / 编解码器自适应</a><br>
+      <a href="#r10">10. RTP 协议</a><br>
+      <a href="#r11">11. RTCP 控制协议</a><br>
+      <a href="#r12">12. 视频会议协议栈</a><br>
+      <a href="#r13">13. SIP 会话发起协议</a><br>
+      <a href="#r14">14. 单向流媒体与 RTSP</a><br>
+      <a href="#r15">15. DASH / HTTP 流媒体</a><br>
+      <a href="#r16">16. 总结</a><br>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PART 1 ==================== -->
+<div class="part">Part 1 — HTTP 与 Web（T5b）</div>
+
+<!-- S1 -->
+<div class="section" id="s1">
+  <div class="section-header">
+    <h2>1. 传输协议选择基础</h2>
+    <span class="slide-ref">Slide 2</span>
+  </div>
+
+  <p>这是贯穿整个 Topic 的核心前提：<strong>应用层自己选择传输协议</strong>，没有强制规定必须用 TCP 或 UDP，甚至可以自己写一个传输协议（前提是能让路由器放行、不被当成 DDoS）。</p>
+
+  <table>
+    <tr><th>场景</th><th>选 TCP</th><th>选 UDP</th></tr>
+    <tr><td>数据量</td><td>大量内容传输</td><td>短消息、单次查询</td></tr>
+    <tr><td>会话</td><td>长时间、复杂会话</td><td>轻量、一问一答</td></tr>
+    <tr><td>可靠性</td><td>必须保证</td><td>丢了再问一次（ARQ 够用）</td></tr>
+    <tr><td>服务端状态</td><td>需要维护连接状态</td><td>服务端几乎无状态</td></tr>
+    <tr><td>协议设计负担</td><td>高 — 字节流，必须自己定义命令边界</td><td>低</td></tr>
+  </table>
+
+  <div class="callout callout-key">
+    <div class="callout-label">核心概念</div>
+    TCP 是字节流（bytestream），没有消息边界。应用层必须自己定义：命令从哪里开始、到哪里结束。这是设计应用层协议时最基础的工程问题。HTTP 用空行 <code>\n\n</code> 作为命令终止符就是这个原则的体现。
+  </div>
+</div>
+
+<!-- S2 -->
+<div class="section" id="s2">
+  <div class="section-header">
+    <h2>2. Web 历史与起源</h2>
+    <span class="slide-ref">Slide 3</span>
+  </div>
+
+  <h3>互联网早期的问题</h3>
+  <ul>
+    <li>所有内容本地运行，想要什么就下载到本地</li>
+    <li>发现内容靠：杂志、新闻组、邮件列表，别人告诉你的是 IP 地址，不是域名</li>
+    <li>内容发现（Discovery）是根本性难题</li>
+  </ul>
+
+  <h3>前驱协议（Archie / Gopher / WAIS）— 重要考点</h3>
+  <ul>
+    <li><strong>Archie</strong>：面向档案库/仓库的搜索工具（Archive → Archie）</li>
+    <li><strong>Gopher</strong>：内容页面链接式浏览，美国俚语"go for something"</li>
+    <li><strong>WAIS</strong>（Wide Area Information Service）：委员会/标准组织设计，规格书厚达数英寸且需要付费购买，没有免费服务器实现 → 根本没人用</li>
+  </ul>
+  <div class="callout callout-warn">
+    <div class="callout-label">Lecture 吐槽要记住</div>
+    WAIS 是"委员会设计 vs 学术开源"的反面教材：Archie 和 Gopher 由学术人员开发、开源发布；WAIS 由标准机构开发、收费买规格 → 结局：WAIS 死了，Archie/Gopher 也没活多久，但 Web 赢了。
+  </div>
+
+  <h3>Tim Berners-Lee 与 WWW</h3>
+  <ul>
+    <li>CERN（法瑞边境高能物理研究所）的 IT 经理，1989 年</li>
+    <li>日常被人问：这个文档在哪？那个数据集怎么拿？→ 想自动化这件事</li>
+    <li>核心思想来源于 <strong>超文本（Hypertext）</strong>：文本中可以嵌入指向其他内容的链接</li>
+    <li>发明了 HTML（标记语言）+ HTTP（传输协议）</li>
+    <li>第一个 URL：<code>http://info.cern.ch/hypertext/WWW/TheProject.html</code>（CERN 曾关闭该服务器，公众强烈反对后恢复，现在仍可访问）</li>
+    <li>现在领导 W3C（管 HTML/XML 标准），HTTP 归 IETF 管</li>
+  </ul>
+</div>
+
+<!-- S3 -->
+<div class="section" id="s3">
+  <div class="section-header">
+    <h2>3. HTTP 版本演进</h2>
+    <span class="slide-ref">Slide 4</span>
+  </div>
+
+  <table>
+    <tr><th>版本</th><th>时间</th><th>关键变化</th></tr>
+    <tr><td>HTTP/0.9</td><td>1989</td><td>Tim 内部测试版，只有 GET</td></tr>
+    <tr><td>HTTP/1.0</td><td>RFC 1945</td><td>正式版，端口 80，TCP，文本协议，每资源一连接</td></tr>
+    <tr><td>HTTP/1.1</td><td>~1997</td><td>持久连接、流水线，沿用至今（约 30 年）</td></tr>
+    <tr><td>SPDY</td><td>~2010</td><td>Google 实验，未广泛采用</td></tr>
+    <tr><td>HTTP/2.0</td><td>~2015</td><td>请求优先级、Header 压缩、Server Push（有争议）</td></tr>
+    <tr><td>HTTP/3.0</td><td>RFC 2021</td><td>基于 QUIC/UDP，内置安全，消除 TCP 队头阻塞</td></tr>
+  </table>
+
+  <div class="callout callout-key">
+    <div class="callout-label">版本协商机制</div>
+    每个请求都带版本号（如 <code>GET / HTTP/1.0</code>），服务端返回响应时也带自己支持的版本（如 <code>HTTP/1.1</code>），相当于在暗示"我支持更高版本"。所有服务端向后兼容 → 自动协商最高公共版本。
+  </div>
+</div>
+
+<!-- S4 -->
+<div class="section" id="s4">
+  <div class="section-header">
+    <h2>4. URL 结构详解</h2>
+    <span class="slide-ref">Slides 5–7</span>
+  </div>
+
+  <pre>scheme://user:password@host:port/path?query#fragment</pre>
+
+  <h3>Scheme（协议头）</h3>
+  <p>IANA 维护注册列表，目前约 280 个。常见的：</p>
+  <table>
+    <tr><th>Scheme</th><th>用途</th><th>注意点</th></tr>
+    <tr><td><code>http://</code> / <code>https://</code></td><td>Web</td><td>默认端口 80 / 443</td></tr>
+    <tr><td><code>callto://</code> / <code>tel://</code></td><td>拨打电话</td><td>手机上点击直接触发拨号</td></tr>
+    <tr><td><code>mailto://</code></td><td>发邮件</td><td>可预填 subject / body</td></tr>
+    <tr><td><code>file://</code></td><td>本地文件</td><td>PowerPoint 不识别（太 OS-specific）</td></tr>
+    <tr><td><code>ftp://</code></td><td>文件传输</td><td>粗暴：只能拿整个文件</td></tr>
+  </table>
+
+  <h3>User:Password（内嵌认证）</h3>
+  <div class="callout callout-exam">
+    <div class="callout-label">安全警告 — 考点</div>
+    用户名密码以<strong>明文</strong>写在 URL 里。即使套 HTTPS 加密了连接，这串文字本身还是写在页面上的。绝对不该这样做。
+  </div>
+
+  <h3>Host & Port</h3>
+  <ul>
+    <li>Host：DNS 可解析的名字或 IP 地址</li>
+    <li>Port 不写默认 80；如果不是 80，必须显式写出</li>
+    <li><strong>Host Header 的妙用</strong>：同一个 IP 上可以跑多个虚拟主机（Virtual Hosts），服务端靠 HTTP 请求里的 <code>Host</code> Header 来区分"你要的是 ANU 的网站还是学院的网站"</li>
+  </ul>
+
+  <h3>Path</h3>
+  <ul>
+    <li>可以是文件系统里的真实路径</li>
+    <li>也可以触发服务端一个程序（如数据库查询）</li>
+    <li>服务端不需要告诉客户端"这是文件"还是"这是程序生成的"，输出格式对就行</li>
+  </ul>
+
+  <h3>#Fragment（锚点）</h3>
+  <p>跳转到页面内某个特定位置，例如 <code>http://en.wikipedia.org/wiki/IEEE_802#See_also</code>。这部分不会发给服务端，浏览器本地处理。</p>
+
+  <h3>?Query（查询参数）</h3>
+  <ul>
+    <li>传参给服务端程序，用 <code>&</code> 连接多个参数</li>
+    <li>你在 URL 里看到的那串乱码，很多时候是<strong>追踪 Token</strong>，不是功能参数</li>
+  </ul>
+  <div class="callout callout-warn">
+    <div class="callout-label">Lecture 具体例子</div>
+    Telnet 到 Google.com:80 发 GET 请求，收到 302 重定向，Location 指向 google.com.au，同时附带 <code>?gfe_rd=cr&amp;dcr=0&amp;ei=xxx</code>。这些 query 参数是追踪 token，让澳洲服务器知道"你是从美国那台机器过来的"，之后所有搜索结果都可追踪。
+  </div>
+</div>
+
+<!-- S5 -->
+<div class="section" id="s5">
+  <div class="section-header">
+    <h2>5. 静态 vs 动态内容</h2>
+    <span class="slide-ref">Slide 8</span>
+  </div>
+
+  <h3>静态内容</h3>
+  <p>服务端直接返回文件，内容固定。</p>
+
+  <h3>服务端动态（早期：CGI）</h3>
+  <ul>
+    <li>CGI = Common Gateway Interface：客户端发请求，服务端运行一个程序，把输出当作 HTTP 响应返回</li>
+    <li>缺点：100 万个客户端同时发请求 → 服务端 CPU 炸</li>
+  </ul>
+
+  <h3>客户端动态（现代主流）</h3>
+  <ul>
+    <li>服务端把数据（可能比需要的多）推给客户端</li>
+    <li>客户端 JS 本地渲染、处理、交互</li>
+    <li>服务端卸载 CPU 压力</li>
+  </ul>
+
+  <h3>两者结合（实际情况）</h3>
+  <p>Google Maps 的例子：</p>
+  <ul>
+    <li>瓦片图（Tiles）：按视口范围预取周围一圈，拖动时边缘触发自动预取</li>
+    <li>路网 Overlay：另一层数据</li>
+    <li>实时交通 Overlay：再一层，持续更新</li>
+    <li>三层数据独立传输、独立刷新，全部跑在同一个 HTTP 连接上</li>
+  </ul>
+
+  <div class="callout callout-key">
+    <div class="callout-label">关键点</div>
+    客户端（浏览器）完全不知道收到的是静态文件还是程序动态生成的，只要格式正确就渲染。这是 Web 架构最核心的灵活性来源。
+  </div>
+</div>
+
+<!-- S6 -->
+<div class="section" id="s6">
+  <div class="section-header">
+    <h2>6. HTTP 完整 8 步流程</h2>
+    <span class="slide-ref">Slide 9</span>
+  </div>
+  <ol>
+    <li><strong>解析 URL</strong> — 拆出 scheme / host / port / path / query / fragment</li>
+    <li><strong>DNS 解析</strong> — 把 host 转成 IP 地址</li>
+    <li><strong>建立 TCP 连接</strong> — 三次握手到 IP:Port</li>
+    <li><strong>发 HTTP 请求</strong> — Method + Path + 版本 + Headers</li>
+    <li><strong>接收内容</strong> — 响应头 + body</li>
+    <li><strong>关闭 TCP 连接</strong>（HTTP/1.0 的行为）</li>
+    <li><strong>解包内容</strong> — 解压缩、解码等</li>
+    <li><strong>渲染</strong> — 浏览器渲染 HTML，触发更多 GET</li>
+  </ol>
+  <div class="callout callout-warn">
+    <div class="callout-label">HTTP/1.0 的性能问题就藏在这里</div>
+    一个网页有 100+ 资源，HTTP/1.0 对每个资源重复做 3~6 步 → 大量时间浪费在 TCP 握手/挥手上。
+  </div>
+</div>
+
+<!-- S7 -->
+<div class="section" id="s7">
+  <div class="section-header">
+    <h2>7. HTTP 请求方法</h2>
+    <span class="slide-ref">Slide 10</span>
+  </div>
+
+  <table>
+    <tr><th>方法</th><th>语义</th><th>实际状态</th></tr>
+    <tr><td><code>GET</code></td><td>获取资源</td><td>最常用</td></tr>
+    <tr><td><code>HEAD</code></td><td>只获取 Headers，不要 body</td><td>用于缓存检查，节省带宽</td></tr>
+    <tr><td><code>POST</code></td><td>提交数据，追加到资源</td><td>用于表单提交、交互式网站</td></tr>
+    <tr><td><code>PUT</code></td><td>在服务端创建/替换文件</td><td>基本废弃——允许远程写服务器文件，风险极大</td></tr>
+    <tr><td><code>DELETE</code></td><td>删除资源</td><td>基本废弃</td></tr>
+    <tr><td><code>LINK / UNLINK</code></td><td>建立/断开资源链接</td><td>已废弃</td></tr>
+  </table>
+
+  <div class="callout callout-key">
+    <div class="callout-label">HEAD 方法的重要性</div>
+    不需要下载整个文件就能知道它"上次修改时间"、"文件大小是否变化"——这是缓存验证的核心机制。比下载整个 1MB 图片再对比要高效得多。
+  </div>
+</div>
+
+<!-- S8 -->
+<div class="section" id="s8">
+  <div class="section-header">
+    <h2>8. HTTP 响应状态码</h2>
+    <span class="slide-ref">Slide 11</span>
+  </div>
+
+  <table>
+    <tr><th>范围</th><th>类别</th><th>典型例子</th></tr>
+    <tr><td>1xx</td><td>信息</td><td>基本不用</td></tr>
+    <tr><td>2xx</td><td>成功</td><td>200 OK；201 Created</td></tr>
+    <tr><td>3xx</td><td>重定向</td><td>301 Moved Permanently；302 Found/Moved Temporarily</td></tr>
+    <tr><td>4xx</td><td>客户端错误</td><td>400 Bad Request；403 Forbidden；404 Not Found</td></tr>
+    <tr><td>5xx</td><td>服务端错误</td><td>500 Internal Server Error；503 Service Unavailable</td></tr>
+  </table>
+
+  <h3>301 vs 302 — 重要区别</h3>
+  <ul>
+    <li><strong>301 Moved Permanently</strong>：永久移走了。客户端应该更新书签，<em>以后不要再来这个地址</em></li>
+    <li><strong>302 Moved Temporarily / Found</strong>：暂时移走了，但<em>每次还是来这个地址</em>，我告诉你临时在哪里</li>
+  </ul>
+
+  <div class="callout callout-exam">
+    <div class="callout-label">考点 — 状态码文字不标准</div>
+    状态码的文字描述（reason phrase）<strong>没有标准化</strong>。Google 返回 "302 Found" 而不是 "302 Moved Temporarily"，但没关系，三位数字才是权威，文字只是参考。
+  </div>
+
+  <h3>实用区别（Transcript 补充）</h3>
+  <ul>
+    <li>看到 4xx：<strong>你的问题</strong>，需要修 URL 或者认证</li>
+    <li>看到 5xx：<strong>服务端的问题</strong>，不是你的锅，等一会儿再试</li>
+    <li>503 Service Unavailable：服务端某个后端进程挂了</li>
+  </ul>
+</div>
+
+<!-- S9 -->
+<div class="section" id="s9">
+  <div class="section-header">
+    <h2>9. Telnet 实验解读</h2>
+    <span class="slide-ref">Slides 12–13</span>
+  </div>
+
+  <p>Telnet 本来是远程登录协议，但因为 HTTP 是纯文本协议，可以用 Telnet 手工发 HTTP 请求来观察协议行为。</p>
+
+  <pre>telnet www.google.com 80
+GET / HTTP/1.0\n\n</pre>
+
+  <p>注意：请求末尾必须有<strong>两个换行</strong>（一个空行），这是 HTTP 命令的终止符。</p>
+
+  <h3>正常响应（302）</h3>
+  <ul>
+    <li>返回 <code>HTTP/1.0 302 Found</code>（注意：Google 用 "Found" 不是 "Moved Temporarily"）</li>
+    <li>包含 <code>Cache-Control: private</code>、<code>Content-Type: text/html; charset=UTF-8</code></li>
+    <li><code>Location: http://www.google.com.au/...</code> — 重定向到澳洲版</li>
+    <li>Body 是一段 HTML，说明重定向目标</li>
+  </ul>
+
+  <h3>错误响应（400）</h3>
+  <pre>GET / HTTP/4.0\n\n</pre>
+  <ul>
+    <li>HTTP/4.0 不存在 → 服务端返回 <code>400 Bad Request</code></li>
+    <li>说明版本号校验是协议内置的，不是可选的</li>
+  </ul>
+
+  <h3>CommBank 的例子（Transcript 独家）</h3>
+  <p>Telnet 到 commbank.com.au:80 → 立即收到重定向，要求切换到 HTTPS（443 端口）。这是银行网站强制 HTTPS 的标准操作。</p>
+</div>
+
+<!-- S10 -->
+<div class="section" id="s10">
+  <div class="section-header">
+    <h2>10. HTTP Headers 详解</h2>
+    <span class="slide-ref">Slide 14</span>
+  </div>
+
+  <p>Headers 在请求和响应两个方向都存在，携带关于资源和连接的元数据。</p>
+
+  <h3>客户端 → 服务端</h3>
+  <table>
+    <tr><th>Header</th><th>作用</th><th>Transcript 补充</th></tr>
+    <tr><td><code>User-Agent</code></td><td>浏览器/设备信息</td><td>服务端可据此给手机返回简化版页面、给 PC 返回完整版；现在浏览器差异小多了但还有用</td></tr>
+    <tr><td><code>Accept</code></td><td>能接受的内容类型</td><td></td></tr>
+    <tr><td><code>Accept-Language</code></td><td>偏好语言列表</td><td>可以说"我想要中文/韩文/越南文"；英文默认第一</td></tr>
+    <tr><td><code>Accept-Encoding</code></td><td>支持的压缩方式</td><td></td></tr>
+    <tr><td><code>Cookie</code></td><td>携带之前服务端设置的 Cookie</td><td>同域自动携带</td></tr>
+    <tr><td><code>Referer</code></td><td>来自哪个页面的链接</td><td>故意拼错的（应该是 Referrer），RFC 写错了没人发现就 merge 了，永远改不了了；新闻网站靠它监控流量来源</td></tr>
+    <tr><td><code>Authorization</code></td><td>认证信息</td><td>美式拼写（Authorisation 是英式）</td></tr>
+    <tr><td><code>Host</code></td><td>目标虚拟主机名</td><td>同 IP 多虚拟主机的关键</td></tr>
+    <tr><td><code>Range</code></td><td>只请求资源的某个范围</td><td>视频跳进度条的核心机制</td></tr>
+  </table>
+
+  <h3>服务端 → 客户端</h3>
+  <table>
+    <tr><th>Header</th><th>作用</th></tr>
+    <tr><td><code>Content-Type</code></td><td>内容类型（MIME type）</td></tr>
+    <tr><td><code>Content-Length</code></td><td>body 字节数</td></tr>
+    <tr><td><code>Content-Encoding</code></td><td>压缩方式</td></tr>
+    <tr><td><code>Content-Language</code></td><td>内容语言</td></tr>
+    <tr><td><code>Set-Cookie</code></td><td>写入 Cookie</td></tr>
+    <tr><td><code>Location</code></td><td>重定向目标（3xx 时使用）</td></tr>
+    <tr><td><code>Last-Modified</code></td><td>资源最后修改时间（缓存用）</td></tr>
+    <tr><td><code>Expires</code></td><td>缓存到期时间</td></tr>
+    <tr><td><code>ETag</code></td><td>资源内容指纹（类似校验和）</td></tr>
+    <tr><td><code>Cache-Control</code></td><td>缓存策略指令</td></tr>
+  </table>
+</div>
+
+<!-- S11 -->
+<div class="section" id="s11">
+  <div class="section-header">
+    <h2>11. HTTP 无状态与 Cookie</h2>
+    <span class="slide-ref">Slide 15</span>
+  </div>
+
+  <div class="callout callout-key">
+    <div class="callout-label">核心概念</div>
+    HTTP 是<strong>无状态协议（Stateless）</strong>：每个请求完全独立，服务端不为你保存任何状态。TCP 连接可能几小时前就断了，你再发新请求时服务端不认识你。
+  </div>
+
+  <h3>维持会话的两种方式</h3>
+  <ol>
+    <li><strong>URL 中嵌 Session Token</strong> — URL 后面那串乱码，包含时间戳（如"一小时后过期"）</li>
+    <li><strong>Cookie</strong> — Netscape 浏览器提出，由服务端写入，客户端存储，相关域请求时自动携带</li>
+  </ol>
+
+  <h3>Cookie 类型详解</h3>
+  <table>
+    <tr><th>类型</th><th>特征</th></tr>
+    <tr><td>Session Cookie</td><td>关闭浏览器/标签页即删除</td></tr>
+    <tr><td>Persistent Cookie</td><td>有 Expiry 字段，到期前一直保留</td></tr>
+    <tr><td>Secure Cookie</td><td>仅通过 HTTPS 传输</td></tr>
+    <tr><td>Third-party Cookie</td><td>第三方网站写入的 Cookie（追踪核心）</td></tr>
+  </table>
+
+  <h3>第三方 Cookie 追踪机制（Transcript 详细讲解）</h3>
+  <ol>
+    <li>你访问 ANU 首页，页面底部有 Facebook 的图标</li>
+    <li>这个图标不存在 ANU 服务器上，是 Facebook 服务器的资源 → 你的浏览器要去 Facebook 请求它</li>
+    <li>Facebook 返回图标，同时给你种一个 Cookie</li>
+    <li>你访问堪培拉时报，同样有 Facebook 图标，浏览器再次请求，带上了刚才的 Cookie</li>
+    <li>Facebook 现在知道：这个用户同时访问了 ANU 和堪培拉时报</li>
+    <li>积累足够多的网站后，Facebook 对你的浏览行为了如指掌</li>
+  </ol>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">1×1 像素透明图片的手段</div>
+    某些网站在页面里放一个 1×1 白色透明图片，来自第三方服务器。你看不见它，但你的浏览器为了渲染页面必须去请求它 → 第三方服务器趁机给你种 Cookie，完成追踪。
+  </div>
+
+  <p>Transcript 建议：去浏览器看 Cookie 列表，正常浏览一周后可能有<strong>数千个</strong>。</p>
+</div>
+
+<!-- S12 -->
+<div class="section" id="s12">
+  <div class="section-header">
+    <h2>12. 协议性能问题</h2>
+    <span class="slide-ref">Slides 16–17</span>
+  </div>
+
+  <h3>为什么性能重要</h3>
+  <ul>
+    <li>网页加载时间慢 1 秒 → 用户去竞争对手那里买东西</li>
+    <li>现代网页 100+ 个独立资源：HTML、JS、CSS、字体、图片、子框架……</li>
+    <li>实际内容（HTML 文字）只占全部数据的很小比例（ANU 首页 HTML 是蓝色小块，图片是紫色大块）</li>
+  </ul>
+
+  <h3>性能瓶颈来源</h3>
+  <ul>
+    <li>浏览器、服务端本身的处理能力</li>
+    <li>内容结构和复杂度</li>
+    <li>HTTP 协议本身（连接管理）</li>
+    <li>TCP 协议行为（拥塞控制，Topic 7 专讲）</li>
+    <li>网络路径、带宽、RTT</li>
+  </ul>
+
+  <h3>三条改进思路</h3>
+  <ol>
+    <li>根据客户端能力调整内容（小屏给小图）</li>
+    <li>缓存——避免重复下载</li>
+    <li>改进 HTTP 连接管理方式</li>
+  </ol>
+</div>
+
+<!-- S13 -->
+<div class="section" id="s13">
+  <div class="section-header">
+    <h2>13. 持久连接、流水线与并行请求</h2>
+    <span class="slide-ref">Slides 18–21</span>
+  </div>
+
+  <h3>HTTP/1.0 — 原始模式（慢）</h3>
+  <ul>
+    <li>每个资源：TCP 建立 → HTTP GET → 下载 → TCP 关闭</li>
+    <li>每次 TCP 握手/挥手都是纯浪费时间</li>
+    <li>信道实际传输数据的时间占比极小（大部分时间在握手和等待）</li>
+    <li>资源越多越糟糕</li>
+  </ul>
+
+  <h3>方案一：并行请求（Parallelism）</h3>
+  <ul>
+    <li>同时开 8+ 个 TCP 连接，并行 GET</li>
+    <li>优点：服务端无需改动</li>
+    <li>缺点：突发 CPU/NIC 负载；突发流量 → 增加丢包概率；8× 资源消耗（两端）；ANU 首页 100 资源 → 开 100 个连接？</li>
+  </ul>
+
+  <h3>方案二：持久连接（Persistent Connection）— HTTP/1.1</h3>
+  <ul>
+    <li>开一条 TCP 连接，顺序请求多个资源，用完再关</li>
+    <li>消除了反复握手/挥手的开销</li>
+    <li>仍然是顺序的：必须等上一个响应完才能发下一个请求</li>
+  </ul>
+
+  <h3>方案三：流水线（Pipelining）— HTTP/1.1</h3>
+  <ul>
+    <li>边下载 HTML，边解析，发现需要图片就立刻发 GET 请求，不等前一个完成</li>
+    <li>服务端按顺序处理请求，按顺序返回响应</li>
+    <li>问题一：<strong>队头阻塞（Head-of-Line Blocking）</strong> — 某个资源慢（数据库查询、损坏的磁盘），后面所有资源都等着</li>
+    <li>问题二：TCP 拥塞控制的影响（Topic 7 细讲）</li>
+  </ul>
+
+  <div class="callout callout-key">
+    <div class="callout-label">现代浏览器的实际做法</div>
+    混合使用三种方式：持久连接 + 流水线 + 有限度的并行。某个资源超时就触发重试。没有哪种单一方案是完美的。
+  </div>
+
+  <h3>Slides 对比图（Slide 21）解读</h3>
+  <ul>
+    <li>黄色 = TCP 建立；绿色 = HTTP 请求；蓝色 = 数据传输；红色 = TCP 关闭</li>
+    <li>Original：每次都有完整的黄-绿-蓝-红循环，大量空白（空闲）时间</li>
+    <li>Persistent：去掉了中间重复的黄红，总时间明显缩短</li>
+    <li>Persistent + Pipeline：请求提前发出，蓝色块更紧凑，但仍受 TCP 和 HOL 制约</li>
+  </ul>
+</div>
+
+<!-- S14 -->
+<div class="section" id="s14">
+  <div class="section-header">
+    <h2>14. 真实性能测试工具</h2>
+    <span class="slide-ref">Slides 22–23</span>
+  </div>
+
+  <h3>Webpagetest.org（Slide 22）</h3>
+  <ul>
+    <li>ANU 首页：<strong>100+ 个资源</strong>，每行一个，横轴是时间</li>
+    <li>每个资源都有：DNS 查询 → TCP 连接 → SSL 握手 → HTTP 请求 → 数据接收各阶段</li>
+    <li>前面几行都是 ANU 自己的 JS/CSS，然后出现：Google Tag Manager、Google Analytics、Facebook……</li>
+    <li>到后面（#88 往后）几乎全是外部追踪服务：DoubleClick.net（广告商）、LinkedIn、Twitter……</li>
+    <li>内容（HTML 本身）= 蓝色小块；图片 = 紫色大块（占请求数 52%、字节数 87%）</li>
+  </ul>
+
+  <h3>GTmetrix.com（Slide 23）</h3>
+  <ul>
+    <li>ANU 首页曾评 F 级，49% Performance / 43% Structure</li>
+    <li>First Contentful Paint 3.1s（浏览器第一次能渲染内容的时间）</li>
+    <li>LCP（Largest Contentful Paint）3.9s</li>
+    <li>改进建议：消除阻塞渲染的资源、图片正确尺寸、用 CDN、高效缓存、使用 HTTP/2……</li>
+  </ul>
+
+  <div class="callout callout-tip">
+    <div class="callout-label">实践建议（Transcript）</div>
+    拿你最喜欢或最讨厌的网站去跑一遍，看看有多少你不知道的第三方在追踪你。
+  </div>
+</div>
+
+<!-- S15 -->
+<div class="section" id="s15">
+  <div class="section-header">
+    <h2>15. 缓存机制</h2>
+    <span class="slide-ref">Slides 24 / 28</span>
+  </div>
+
+  <h3>浏览器本地缓存</h3>
+  <ul>
+    <li>去过的网站大概率还会去，浏览器乐观地保存所有内容</li>
+    <li>需要验证资源是否已改变，不能盲目用旧版本</li>
+    <li>浏览器会追踪哪些网站访问频率高，优先保留它们的缓存</li>
+  </ul>
+
+  <h3>缓存验证机制（HTTP 内置）</h3>
+  <table>
+    <tr><th>机制</th><th>HTTP 版本</th><th>工作方式</th></tr>
+    <tr><td><code>Expires</code></td><td>1.0</td><td>服务端告诉你"到这个日期之前都可以用缓存"</td></tr>
+    <tr><td><code>Last-Modified</code></td><td>1.0</td><td>上次修改时间；客户端可用 <code>If-Modified-Since</code> 条件 GET 验证</td></tr>
+    <tr><td><code>ETag</code></td><td>1.1</td><td>类似内容指纹/校验和；客户端用 <code>If-None-Match</code> 验证</td></tr>
+    <tr><td><code>HEAD</code> 请求</td><td>1.0</td><td>只拿 Headers 不拿 body，用于快速验证是否变化</td></tr>
+  </table>
+
+  <h3>Partial GET（HTTP/1.1）</h3>
+  <ul>
+    <li>Range Header：只请求资源的某一段字节</li>
+    <li>最典型用途：视频播放器请求特定时间段的视频帧，YouTube 的"灰色进度条"预取就靠这个</li>
+  </ul>
+
+  <div class="callout callout-key">
+    <div class="callout-label">缓存设计的初衷</div>
+    Tim Berners-Lee 在 1989 年设计 HTTP 时就把缓存机制内置进去了——这不是后来加的补丁，而是协议的核心设计。
+  </div>
+</div>
+
+<!-- S16 -->
+<div class="section" id="s16">
+  <div class="section-header">
+    <h2>16. 代理（Proxy）与缓存代理</h2>
+    <span class="slide-ref">Slides 25–27</span>
+  </div>
+
+  <h3>代理的基本概念</h3>
+  <p>代理在 Client 和 Server 之间，代替 Client 做工作。对 Client 来说代理像服务端，对 Server 来说代理像客户端——<strong>把一个 TCP 连接劈成两段</strong>。</p>
+
+  <h3>缓存代理（Caching Proxy）的收益</h3>
+  <table>
+    <tr><th>受益方</th><th>具体收益</th></tr>
+    <tr><td>客户端</td><td>更近的缓存 → 更低延迟</td></tr>
+    <tr><td>网络/ISP</td><td>出口带宽使用减少（内容在校园/企业内部命中）</td></tr>
+    <tr><td>服务端</td><td>请求量减少，负载降低</td></tr>
+    <tr><td>组织安全</td><td>可在此做安全扫描（检查文件类型、可执行内容）</td></tr>
+    <tr><td>访问控制</td><td>组织可在此执行访问策略（屏蔽特定内容类型）</td></tr>
+  </table>
+
+  <h3>缓存代理的局限（Downsides）</h3>
+  <ul>
+    <li>加密流量（HTTPS）无法读取内容 → 无法缓存</li>
+    <li>动态内容（URL 相同但结果不同的数据库查询）无法缓存</li>
+    <li>单次访问的"垃圾"内容占据缓存空间（一个学生查了一次没人再查的东西）</li>
+    <li>VPN 流量绕过代理</li>
+  </ul>
+
+  <h3>代理的 HTTP 扩展头</h3>
+  <ul>
+    <li><code>Proxy-Authenticate</code>：代理认证</li>
+    <li><code>Forwarded</code>：转发信息（原始客户端 IP）</li>
+    <li><code>Proxy-Connection</code>：代理连接控制</li>
+  </ul>
+
+  <h3>客户端如何知道用哪个代理</h3>
+  <ul>
+    <li>浏览器手动配置代理地址</li>
+    <li>自动代理发现（PAC 文件）</li>
+    <li>网络管理员做<strong>深度包检测（Deep Packet Inspection）</strong>：检查每个 TCP 流的 HTTP payload，透明拦截 → 成本极高但确实有人做</li>
+  </ul>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">安全陷阱</div>
+    如果你以为用 HTTPS 连接了代理，而代理对外是明文 HTTP，你以为安全其实不安全。代理把你的加密流量剥开再转发了。
+  </div>
+</div>
+
+<!-- S17 -->
+<div class="section" id="s17">
+  <div class="section-header">
+    <h2>17. CDN（内容分发网络）</h2>
+    <span class="slide-ref">Slide 29</span>
+  </div>
+
+  <h3>与代理缓存的区别</h3>
+  <ul>
+    <li>代理缓存：被动，等客户端请求了才填充</li>
+    <li>CDN：主动，<strong>在请求到来之前就把内容推到全球各地的缓存节点</strong></li>
+  </ul>
+
+  <h3>CDN 工作机制</h3>
+  <ol>
+    <li>内容提供商（如 CNN）与 CDN 签约</li>
+    <li>CDN 在全球部署缓存节点，内容提前推送过去</li>
+    <li>DNS 配置：用户查询 cnn.com → DNS 返回最近的缓存节点 IP</li>
+    <li>HTML 中的资源链接也指向缓存节点（不是源服务器）</li>
+  </ol>
+
+  <h3>Akamai 的故事（Transcript 详讲）</h3>
+  <ul>
+    <li>1995-1996 年成立，HTTP/1.0 时代就看到了这个机会</li>
+    <li>全球数百个 PoP（节点），看到大量全球 Web 流量</li>
+    <li>对网络行为、攻击模式有极深的洞察力</li>
+    <li>至今仍是极度富有且有效的商业公司</li>
+  </ul>
+
+  <div class="callout callout-key">
+    <div class="callout-label">Win:Win:Win</div>
+    用户赢（更快）、内容提供商赢（服务器压力小）、ISP 赢（骨干网流量减少）。三方都受益，这也是 CDN 能成功的根本原因。
+  </div>
+</div>
+
+<!-- S18 -->
+<div class="section" id="s18">
+  <div class="section-header">
+    <h2>18. HTTP 2.0 / 3.0 / QUIC</h2>
+    <span class="slide-ref">Slides 30–32</span>
+  </div>
+
+  <h3>HTTP/2.0</h3>
+  <ul>
+    <li>客户端可以给服务端请求设置<strong>优先级</strong>（先发 HTML/CSS，图片后面再说）</li>
+    <li><strong>Header 压缩</strong>（HPACK）</li>
+    <li><strong>Server Push</strong>：服务端预测你接下来要什么就主动发过来（"你要首页，你肯定还要这个 logo"）</li>
+    <li>Server Push 争议很大，实现复杂，HTTP/2.1 至今没出来</li>
+    <li>Apache 等服务端在实现 HTTP/2 时加了一些额外的优化但比较混乱</li>
+  </ul>
+
+  <h3>HTTP/3 / QUIC</h3>
+
+  <div class="callout callout-exam">
+    <div class="callout-label">重点考区</div>
+    HTTP/3 基于 QUIC，QUIC 基于 UDP，但加了部分 TCP 功能。根本目的是消除 TCP 的队头阻塞，并减少连接建立的 RTT 次数。
+  </div>
+
+  <table>
+    <tr><th>特性</th><th>说明</th></tr>
+    <tr><td>基础协议</td><td>UDP（Quick UDP Internet Connections）</td></tr>
+    <tr><td>可靠性</td><td>在 UDP 层自己实现：序列号、校验和（类似 TCP 但更灵活）</td></tr>
+    <tr><td>安全</td><td>内置 TLS，连接建立时一并完成，<strong>从 7 个 RTT 降到 2 个</strong></td></tr>
+    <tr><td>队头阻塞</td><td>每个流独立，一个流的丢包不阻塞其他流</td></tr>
+    <tr><td>兼容性</td><td>部分 ISP 限速 UDP → 自动 fallback 到 TCP</td></tr>
+    <tr><td>标准化</td><td>RFC 8999-9002（2021）</td></tr>
+  </table>
+
+  <h3>QUIC 的研发历史（Transcript 独家）</h3>
+  <ul>
+    <li>Google 约 2011-2012 年开始研发</li>
+    <li><strong>2013-2014 年就悄悄部署到 Chrome 和 Google 服务器</strong>——全球用户在不知情的情况下成了实验对象</li>
+    <li>研究人员用 Wireshark 抓包才发现"这是什么协议？"</li>
+    <li>IETF 不满这种开发方式，但最终接受并推进标准化</li>
+    <li>现在约 1/3 的 HTTP 流量跑在 QUIC 上</li>
+  </ul>
+
+  <h3>谁在用 HTTP/3</h3>
+  <ul>
+    <li>浏览器：Chrome、Edge（Chromium）、Firefox、Safari、Opera</li>
+    <li>移动：Android 原生库、iOS</li>
+    <li>服务端：NGINX、LiteSpeed、MS IIS ✓ — <strong>Apache：还没有</strong></li>
+    <li>商业：Google、Facebook、Instagram、Uber</li>
+    <li>检测工具：<code>http3check.net</code></li>
+  </ul>
+</div>
+
+<!-- S19 -->
+<div class="section" id="s19">
+  <div class="section-header">
+    <h2>19. HTTP 被滥用为"传输协议"</h2>
+    <span class="slide-ref">Slide 33</span>
+  </div>
+
+  <ul>
+    <li>HTTP 开始承载实时音视频（本该用 RTP 的场景）</li>
+    <li>SOAP、REST、AJAX — 机器对机器的 RPC（远程过程调用）跑在 HTTP 上</li>
+    <li>被用于防火墙穿透：什么都被防火墙拦，但 CEO 要上网 → 80/443 端口不能封 → 所有人都把东西塞进 HTTP</li>
+    <li>Chrome 现在这么大的原因之一：HTTP 承载了越来越多本不属于它的功能</li>
+  </ul>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">Lecture 评价</div>
+    用 HTTP 绕防火墙"有点不公平，但现实就是如此"——不是最优解，但是万能解。
+  </div>
+</div>
+
+<!-- ==================== PART 2 ==================== -->
+<div class="part">Part 2 — 实时通信（T5c）</div>
+
+<!-- R1 -->
+<div class="section" id="r1">
+  <div class="section-header">
+    <h2>1. 实时流量面临的挑战</h2>
+    <span class="slide-ref">Slides 3–4</span>
+  </div>
+
+  <h3>什么应用需要"实时"</h3>
+  <ul>
+    <li>音视频：电话、视频会议（双向交互）</li>
+    <li>远程手术 / 远程医疗（telesurgery）</li>
+    <li>机器人控制、工业控制（阀门、信号、铁路道岔）</li>
+    <li>VR / AR：手机移动速度快，overlay 必须实时对齐，高 latency 导致不对齐</li>
+  </ul>
+
+  <div class="callout callout-exam">
+    <div class="callout-label">核心 Trade-off — 贯穿全章</div>
+    <strong>时效性（低延迟）</strong> vs <strong>可靠性（不丢包）</strong> — 两者不可兼得。可靠性靠重传，重传需要时间。你必须为你的应用选择一个平衡点。
+  </div>
+
+  <h3>实时通信的复杂度</h3>
+  <p>N 个站点的视频会议：复杂度是 <strong>O(N²)</strong>——每对站点之间都需要维护连接和同步。</p>
+
+  <h3>Transcript 中的极端案例</h3>
+  <ul>
+    <li>音乐远程协奏：舞台在欧洲 + 大提琴手在阿根廷 + 舞蹈演员在泰国，实时合演。音乐家的大脑自适应了延迟，提前按节拍演奏</li>
+    <li>夏威夷医生在泰国做手术：发指令"刀往前"，然后"停"——如果"停"这条消息丢失，后果灾难性</li>
+  </ul>
+</div>
+
+<!-- R2 -->
+<div class="section" id="r2">
+  <div class="section-header">
+    <h2>2. 实时性要求与应用差异</h2>
+    <span class="slide-ref">Slide 5</span>
+  </div>
+
+  <table>
+    <tr><th>应用类型</th><th>传输方向</th><th>推荐协议</th><th>延迟容忍</th></tr>
+    <tr><td>视频流媒体（YouTube）</td><td>单向</td><td>TCP / HTTP</td><td>可以有几秒缓冲</td></tr>
+    <tr><td>视频会议（Zoom）</td><td>双向交互</td><td>UDP</td><td>极低，150ms 以内较理想</td></tr>
+    <tr><td>机器人控制</td><td>双向</td><td>UDP（或专用网络）</td><td>极低，且需要高可靠</td></tr>
+  </table>
+
+  <h3>人类感知的特性（Transcript）</h3>
+  <ul>
+    <li>视频：可以容忍 90% 丢包，大脑能补偿画面模糊/冻结</li>
+    <li>音频：丢失 10% 就基本不可用</li>
+    <li>音视频唇音同步：如果音画延迟不一致，比单纯延迟更令人难受</li>
+    <li>国际卫星电话的案例：澳洲到欧洲约 2 秒延迟，对话变成"轮流独白"而不是对话</li>
+  </ul>
+</div>
+
+<!-- R3 -->
+<div class="section" id="r3">
+  <div class="section-header">
+    <h2>3. 网络延迟的构成</h2>
+    <span class="slide-ref">Slides 6–9</span>
+  </div>
+
+  <div class="callout callout-key">
+    <div class="callout-label">互联网是 Best-Effort</div>
+    互联网不保证任何东西，除非你有专用电路。路由器、路径、带宽——都不属于你，你无法控制。
+  </div>
+
+  <h3>延迟的几个分量</h3>
+  <table>
+    <tr><th>分量</th><th>说明</th><th>可控？</th></tr>
+    <tr><td>传播延迟（Latency）</td><td>光速限制，纯物理</td><td>不可控，不可逾越</td></tr>
+    <tr><td>排队延迟（Queuing Delay）</td><td>路由器队列等待</td><td>不可控（路由器不属于你）</td></tr>
+    <tr><td>抖动（Jitter / PDV）</td><td>延迟的随机变化量</td><td>接收端可通过缓冲区应对</td></tr>
+  </table>
+
+  <h3>理想 vs 现实（Slides 8–9 图解）</h3>
+  <p>理想：所有包以恒定延迟到达（像电路交换，延迟分布图是一根尖峰）</p>
+  <p>现实：</p>
+  <ul>
+    <li>有些包走了最快路径，到达早（左边的尾巴）</li>
+    <li>大多数包在"典型延迟"附近到达（分布的峰值）</li>
+    <li>有些包被重路由、拥塞、分片，到达很晚（右边的尾巴）</li>
+    <li>"典型延迟"比物理延迟高，这个峰值周围的扩散就是 Jitter</li>
+  </ul>
+
+  <h3>发送端 vs 接收端的时间对比（Slides 11–12）</h3>
+  <ul>
+    <li>发送端：1、2、3、4、5 号包按时钟均匀发出</li>
+    <li>接收端：1 号按时到，2 号晚了一点，3 号比 2 号快，4 号极晚，5 号正常……</li>
+    <li>而且到达顺序可能打乱：1、3、2、5、4</li>
+    <li>接收端必须处理乱序和延迟这两个问题</li>
+  </ul>
+</div>
+
+<!-- R4 -->
+<div class="section" id="r4">
+  <div class="section-header">
+    <h2>4. Jitter（包延迟变化）实测</h2>
+    <span class="slide-ref">Slide 10</span>
+  </div>
+
+  <ul>
+    <li>典型 Jitter 约 15-17ms，不会低于 15ms（Slide 10 中的 UDP 流量测量图）</li>
+    <li>15ms ≈ 60fps 视频的一帧时长（1/60s ≈ 16.7ms）</li>
+    <li>偶发峰值可以超过 30ms — 相当于 2 帧的不确定性</li>
+    <li>Jitter 本身也会随时间变化，不是静态的</li>
+  </ul>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">为什么 Jitter 比延迟本身更麻烦</div>
+    固定延迟可以通过预先缓冲来补偿（等够了再播）。但 Jitter 是随机的，你不知道下一个包会晚多少 → 缓冲区设多大才够？这是实时通信最核心的设计问题。
+  </div>
+</div>
+
+<!-- R5 -->
+<div class="section" id="r5">
+  <div class="section-header">
+    <h2>5. 接收端缓冲区机制</h2>
+    <span class="slide-ref">Slides 13–15</span>
+  </div>
+
+  <h3>为什么需要缓冲区</h3>
+  <ul>
+    <li>发送端：以固定速率发出音视频样本</li>
+    <li>接收端：同样需要以固定速率播出</li>
+    <li>网络引入了随机延迟和乱序 → 需要缓冲区来"整平"</li>
+  </ul>
+
+  <h3>缓冲区工作原理</h3>
+  <ul>
+    <li><strong>Receive Buffer</strong>：收包、重排序</li>
+    <li><strong>Playout Buffer</strong>：按正确顺序排好，定时播出</li>
+    <li>缓冲区大小以字节衡量，但实质上是"时间窗口"</li>
+  </ul>
+
+  <h3>最大可接受延迟（Slide 15）</h3>
+  <p>设定一个阈值：超过这个时间还没收到的包 → 当作"丢失"处理，不再等待。这个阈值就是你的 Receive Buffer 大小（时间维度）。</p>
+
+  <p>例如 Slide 14：包 4 在最后一刻收到，已经超出了 playout buffer 的时间窗口 → 应用层认为它"丢了"（即使物理上收到了）。</p>
+</div>
+
+<!-- R6 -->
+<div class="section" id="r6">
+  <div class="section-header">
+    <h2>6. 缓冲区大小的 Trade-off</h2>
+    <span class="slide-ref">Slide 16</span>
+  </div>
+
+  <table>
+    <tr><th></th><th>大缓冲区</th><th>小缓冲区</th></tr>
+    <tr><td>Jitter 容忍度</td><td>高（等得起）</td><td>低（等不起）</td></tr>
+    <tr><td>端到端延迟</td><td>高（等满再播）</td><td>低（接近实时）</td></tr>
+    <tr><td>丢包率</td><td>低（超时包少）</td><td>高（超时包多）</td></tr>
+    <tr><td>适合场景</td><td>单向流媒体、录播</td><td>视频会议、实时控制</td></tr>
+  </table>
+
+  <div class="callout callout-key">
+    <div class="callout-label">设计原则</div>
+    缓冲区越小，实时性越好，但越容易"卡顿"（glitch）。视频可以接受偶尔卡顿，音频几乎不能接受。每个应用自己权衡，没有统一答案。
+  </div>
+</div>
+
+<!-- R7 -->
+<div class="section" id="r7">
+  <div class="section-header">
+    <h2>7. 修复丢包的手段</h2>
+    <span class="slide-ref">Slides 17 / 20</span>
+  </div>
+
+  <h3>重传（Retransmission）— 基本不用</h3>
+  <ul>
+    <li>检测到丢包 → 向发送端请求重发</li>
+    <li>代价：来回 RTT + 处理时间 + 再次排队延迟</li>
+    <li>意味着 Receive Buffer 必须极大（等重传包进来）</li>
+    <li>发送端还得缓冲已发的数据（万一要重发）</li>
+    <li>例外：<strong>IP Multicast</strong> 场景下可以向"最近的邻居"请求重传（见下节）</li>
+  </ul>
+
+  <h3>前向纠错（FEC，Forward Error Correction）</h3>
+  <ul>
+    <li>发送端在数据中加入冗余信息</li>
+    <li>接收端即使收到的包有错误/丢失，可以自行重建</li>
+    <li>适用于：控制信号可靠性、重传代价太高的场景（如深空探测器）</li>
+    <li>也叫"Adaptive FEC"——根据网络状况动态调整冗余量</li>
+  </ul>
+
+  <h3>编解码器自适应（Codec Adaptation）</h3>
+  <ul>
+    <li>丢包率高 → 降低码率/分辨率，减少发送量</li>
+    <li>需要反向信道（接收端告知发送端网络状况）</li>
+    <li>YouTube 自动从 1080p 切到 360p 就是这个</li>
+  </ul>
+
+  <h3>并行传输（Parallel Transmission）</h3>
+  <ul>
+    <li>发第 N 帧时，附带上第 N-1 帧的压缩低质量副本</li>
+    <li>如果 N-1 帧丢了，N 帧里有它的备份</li>
+    <li>代价：带宽增加；收益：丢包时有低质量版本填空</li>
+    <li>也适用于控制信号可靠性（Slide 20 图示：4 3 2 1 并行发送）</li>
+  </ul>
+
+  <h3>错误补偿（Interpolation）</h3>
+  <ul>
+    <li>帧与帧之间做插值，丢失的帧用相邻帧近似</li>
+    <li>类似渐进式图像压缩的思路</li>
+  </ul>
+</div>
+
+<!-- R8 -->
+<div class="section" id="r8">
+  <div class="section-header">
+    <h2>8. IP Multicast</h2>
+    <span class="slide-ref">Slide 18</span>
+  </div>
+
+  <ul>
+    <li>发送端发一份，网络在分叉点自动复制给多个接收端</li>
+    <li>所有接收端也可以是发送端（Everyone is a listener AND a sender）</li>
+    <li>丢包修复：接收端不必向源发送端请求重传，可以向<strong>最近的邻居</strong>请求（谁有这个包谁发）</li>
+    <li>大幅减少重传延迟（邻居比源更近）</li>
+    <li>用于大规模分发（企业内网视频广播等）</li>
+  </ul>
+</div>
+
+<!-- R9 -->
+<div class="section" id="r9">
+  <div class="section-header">
+    <h2>9. 弹性缓冲区</h2>
+    <span class="slide-ref">Slide 19</span>
+  </div>
+
+  <h3>工作原理</h3>
+  <ul>
+    <li>监控丢包率：正常 1/100 → 突然变成 4/100 → 网络变差</li>
+    <li>扩大缓冲区：多等一会儿，给包更多时间到达</li>
+    <li>播放速度<strong>减慢</strong>（Slow down playout）：用户看到视频慢了一点点</li>
+    <li>网络恢复后：缩小缓冲区，播放速度<strong>加快</strong>（Play fast to catch up）</li>
+  </ul>
+
+  <div class="callout callout-tip">
+    <div class="callout-label">Zoom/Teams 卡顿的真相</div>
+    你有时看到某人突然"慢动作"，然后又"加速"一下追回来——就是弹性缓冲区在扩张/收缩。扩张时放慢播放，收缩时快进追赶，通常持续 0.5~1 秒。
+  </div>
+</div>
+
+<!-- R10 -->
+<div class="section" id="r10">
+  <div class="section-header">
+    <h2>10. RTP — 实时传输协议</h2>
+    <span class="slide-ref">Slide 21</span>
+  </div>
+
+  <h3>基本定位</h3>
+  <ul>
+    <li>跑在 UDP 之上（也可跑 TCP）</li>
+    <li>支持任何媒体编码格式</li>
+    <li>支持多路媒体流合并（如同一视频会议的音频流 + 视频流）</li>
+  </ul>
+
+  <h3>Header 关键字段</h3>
+  <table>
+    <tr><th>字段</th><th>作用</th></tr>
+    <tr><td>Sequence Number</td><td>包的序列号，用于检测丢包和乱序重排</td></tr>
+    <tr><td>Timestamp</td><td>媒体时间戳，用于同步播放（不是网络时间）</td></tr>
+    <tr><td>SSRC（Synchronisation Source Identifier）</td><td>标识流的来源，用于唇音同步（把音频和视频对齐）</td></tr>
+    <tr><td>CSRC（Contributing Source Identifier）</td><td>标识合成流中各原始来源</td></tr>
+    <tr><td>Payload Type</td><td>媒体编码类型（用于选择解码器）</td></tr>
+    <tr><td>M（Marker bit）</td><td>重要事件标记（如帧边界）</td></tr>
+  </table>
+
+  <h3>RTP 的能力</h3>
+  <ul>
+    <li>多路音视频流合并，选择语言/字幕</li>
+    <li>唇音同步（Lip-sync）</li>
+    <li>也可携带白板、共享文档等非标准媒体</li>
+    <li>支持实时翻译字幕叠加（Transcript 提到）</li>
+  </ul>
+</div>
+
+<!-- R11 -->
+<div class="section" id="r11">
+  <div class="section-header">
+    <h2>11. RTCP — RTP 控制协议</h2>
+    <span class="slide-ref">Slide 22</span>
+  </div>
+
+  <h3>设计目的</h3>
+  <p>发送端需要知道：我的流质量怎么样？应该调整码率、纠错力度、重传策略吗？</p>
+
+  <h3>核心机制</h3>
+  <ul>
+    <li>使用<strong>奇数端口</strong>（RTP 用偶数端口），带外控制，不干扰媒体流</li>
+    <li>必须限制 RTCP 带宽占用（不能让控制流吃掉媒体带宽）</li>
+  </ul>
+
+  <h3>主要报告类型</h3>
+  <table>
+    <tr><th>类型</th><th>内容</th></tr>
+    <tr><td>Sender Report</td><td>发送端统计：发了多少包/字节，NTP 时间戳</td></tr>
+    <tr><td>Receiver Report</td><td>接收端统计：丢包率、最大序列号、抖动值、RTT</td></tr>
+    <tr><td>Source Description</td><td>标识参与者信息</td></tr>
+    <tr><td>BYE</td><td>离开会话通知</td></tr>
+    <tr><td>Heartbeat</td><td>我还活着，流还在传</td></tr>
+    <tr><td>Retransmission Request</td><td>请求重发特定包</td></tr>
+  </table>
+
+  <div class="callout callout-key">
+    <div class="callout-label">RTCP 的价值</div>
+    发送端收到"你有 0% 丢包"→ 提高视频质量；收到"你有 10% 丢包"→ 降码率或加强 FEC。这是实时自适应的核心反馈回路。
+  </div>
+</div>
+
+<!-- R12 -->
+<div class="section" id="r12">
+  <div class="section-header">
+    <h2>12. 视频会议完整协议栈</h2>
+    <span class="slide-ref">Slide 23</span>
+  </div>
+
+  <table>
+    <tr><th>协议</th><th>职责</th></tr>
+    <tr><td>SIP</td><td>建立/终止通话（"打电话/挂电话"）</td></tr>
+    <tr><td>SDP</td><td>协商媒体参数（编解码器、分辨率、带宽上限）</td></tr>
+    <tr><td>RTP</td><td>传输实际的音视频数据</td></tr>
+    <tr><td>RTCP</td><td>传输控制/统计信息，驱动自适应</td></tr>
+    <tr><td>接收端缓冲区</td><td>处理 Jitter、乱序，驱动弹性播出</td></tr>
+  </table>
+</div>
+
+<!-- R13 -->
+<div class="section" id="r13">
+  <div class="section-header">
+    <h2>13. SIP — 会话发起协议</h2>
+    <span class="slide-ref">Slides 24–25</span>
+  </div>
+
+  <h3>定位</h3>
+  <ul>
+    <li>IETF 开放标准（RFC 3261+），不关心媒体传输方式本身</li>
+    <li>主要用于 VoIP / 企业电话系统（澳洲 NBN 后大量使用）</li>
+    <li>包括：代理（Proxy）、注册服务器（Registrar）、重定向服务器、边界控制器、网关（接入 PSTN）</li>
+  </ul>
+
+  <h3>协议外观</h3>
+  <ul>
+    <li>看起来像 HTTP：命令、响应、状态码（但没有 XYZ 码）</li>
+    <li>跑在 TCP 和 UDP 上</li>
+    <li>信令流：INVITE → 180 Ringing → 200 OK → ACK → [RTP media] → BYE → 200 OK</li>
+  </ul>
+
+  <h3>SIP vs H.323</h3>
+  <table>
+    <tr><th></th><th>SIP</th><th>H.323（ITU）</th></tr>
+    <tr><td>来源</td><td>IETF / 学术</td><td>电信标准组织（邮电部系统）</td></tr>
+    <tr><td>规格书</td><td>开放免费</td><td>厚度以英寸计，买规格要几千美元</td></tr>
+    <tr><td>采用情况</td><td>广泛（VoIP）</td><td>仅企业视频会议系统残存</td></tr>
+  </table>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">SIP 的尴尬</div>
+    SIP 是优秀的开放标准，但 Zoom、WhatsApp、Telegram、FaceTime、Teams、Messenger——<strong>全部不用 SIP</strong>，都是私有协议。商业利益让各平台封闭在自己的生态里。Skype 现在也消失了。
+  </div>
+</div>
+
+<!-- R14 -->
+<div class="section" id="r14">
+  <div class="section-header">
+    <h2>14. 单向流媒体与 RTSP</h2>
+    <span class="slide-ref">Slides 26–27</span>
+  </div>
+
+  <h3>单向流媒体 vs 视频会议</h3>
+  <ul>
+    <li>单向：不在乎延迟（几秒的缓冲无所谓），强调流畅可靠</li>
+    <li>接收端"拉"内容（而不是发送端"推"）</li>
+    <li>可用 TCP：可靠传输，通过滑动窗口管理播出缓冲</li>
+    <li>播放进度条：红色 = 已播，灰色 = 已预取，无色 = 未下载</li>
+    <li>跳到灰色区域：立刻播；跳到无色区域：暂停等待下载</li>
+  </ul>
+
+  <h3>RTSP（Real Time Streaming Protocol）</h3>
+  <ul>
+    <li>建立流媒体会话，协商传输参数（可以用 RTP/RTCP 或 HTTP 等）</li>
+    <li>命令：<code>OPTIONS</code>、<code>DESCRIBE</code>、<code>SETUP</code>、<code>PLAY</code>（含时间范围）、<code>PAUSE</code>……</li>
+    <li>看起来像 HTTP 和 SIP</li>
+    <li>YouTube/Netflix 没有用 RTSP，用的是私有方案</li>
+    <li><strong>最常见的实际用途：安防摄像头</strong> — 大多数 IP 摄像头提供 RTSP 接口</li>
+  </ul>
+
+  <div class="callout callout-tip">
+    <div class="callout-label">实用技巧（Transcript）</div>
+    安防摄像头的 RTSP 流可以用命令行客户端（如 ffmpeg、VLC）直接访问和录制，可以在视频帧间跳转。
+  </div>
+</div>
+
+<!-- R15 -->
+<div class="section" id="r15">
+  <div class="section-header">
+    <h2>15. DASH / HTTP 流媒体</h2>
+    <span class="slide-ref">Slide 28</span>
+  </div>
+
+  <h3>DASH（Dynamic Adaptive Streaming over HTTP）</h3>
+  <ul>
+    <li>在 HTTP 上实现自适应流媒体</li>
+    <li>用 <code>HEAD</code> 请求了解媒体信息和可用格式</li>
+    <li>用 <code>GET</code> + <code>Range</code> 下载视频片段填充播放缓冲区</li>
+    <li>服务端可以根据请求做自适应编码（不同码率/分辨率）</li>
+    <li>HTML5 内置 <code>&lt;video&gt;</code> 标签（Flash 的终结者）</li>
+  </ul>
+
+  <h3>为什么用 HTTP 做流媒体</h3>
+  <ul>
+    <li>防火墙穿透：HTTP 端口基本不封</li>
+    <li><strong>服务端无状态</strong>（每个 GET 独立）→ 更容易扩展</li>
+    <li>天然继承 HTTP 的代理、缓存、CDN 基础设施</li>
+  </ul>
+
+  <h3>YouTube 流量特征（Transcript）</h3>
+  <p>抓包 YouTube 流量可以看到<strong>锯齿波（sawtooth pattern）</strong>：客户端定期下载几 MB，把缓冲区填满，然后暂停等播放消耗，再重新下载。这就是 DASH 的节奏。</p>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">"唉，还是用 HTTP 吧"（Slide 28 标题）</div>
+    RTSP/RTP 是更专业的流媒体协议，但 YouTube 和 Netflix 选了 HTTP/DASH，原因直白：防火墙、现成基础设施、开发简单。专业不一定赢，实用才能赢。
+  </div>
+</div>
+
+<!-- R16 -->
+<div class="section" id="r16">
+  <div class="section-header">
+    <h2>16. 总结</h2>
+    <span class="slide-ref">Slide 29</span>
+  </div>
+
+  <div class="callout callout-exam">
+    <div class="callout-label">最终结论 — Lecture 原话</div>
+    "在 best-effort 网络上实现完美、低延迟的实时传输真的很难。所有的智能都在端点，网络本身什么都不保证。"
+  </div>
+
+  <ul>
+    <li>实时通信的所有优化（弹性缓冲、FEC、codec 自适应）都在<strong>接收端/发送端</strong>实现</li>
+    <li>网络只管尽力转发，不保证 QoS（除非你有专用电路：MPLS、RSVP、QoS）</li>
+    <li>音视频"勉强能用" — 在你的网络条件下</li>
+    <li>机器人/工业控制用实时流量：互联网可能不是最佳选择，但有时是唯一选择</li>
+    <li>人脑适应性强（音乐家适应了延迟），机器人不会自适应</li>
+  </ul>
+</div>
+
+<!-- Footer -->
+<div style="text-align:center; color:#9ca3af; font-family:sans-serif; font-size:0.8rem; margin-top:2rem; padding-top:1rem; border-top:1px solid #e5e7eb;">
+  COMP3310 Week 6 · T5b (HTTP/Web) + T5c (Realtime) · Slides + Transcript 综合整理
+</div>
+
+</div>
+</body>
+</html>

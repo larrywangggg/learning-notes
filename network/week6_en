@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMP3310 Week 6 Detailed Notes</title>
+<style>
+  :root {
+    --accent: #4f46e5;
+    --accent-light: #eef2ff;
+    --accent-border: #c7d2fe;
+    --warn: #d97706;
+    --warn-light: #fefce8;
+    --warn-border: #fde68a;
+    --danger: #dc2626;
+    --danger-light: #fef2f2;
+    --danger-border: #fecaca;
+    --success: #059669;
+    --success-light: #f0fdf4;
+    --success-border: #a7f3d0;
+    --gray: #6b7280;
+    --gray-light: #f9fafb;
+    --gray-border: #e5e7eb;
+    --text: #111827;
+    --text-muted: #6b7280;
+    --bg: #ffffff;
+    --bg-page: #f3f4f6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--bg-page);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 15px;
+  }
+  .wrapper { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* Header */
+  .doc-header {
+    background: var(--accent);
+    color: white;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  .doc-header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+  .doc-header p { opacity: 0.8; font-size: 0.9rem; font-family: sans-serif; }
+
+  /* TOC */
+  .toc {
+    background: var(--bg);
+    border: 1px solid var(--gray-border);
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+  }
+  .toc h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-family: sans-serif; margin-bottom: 1rem; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem 2rem; }
+  .toc a { color: var(--accent); text-decoration: none; font-family: sans-serif; font-size: 0.88rem; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Part header */
+  .part {
+    background: var(--accent);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    margin: 2rem 0 1.2rem;
+    font-family: sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Section */
+  .section {
+    background: var(--bg);
+    border: 1px solid var(--gray-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.2rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--gray-border);
+  }
+  .section-header h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-family: sans-serif;
+    color: var(--text);
+  }
+  .slide-ref {
+    font-size: 0.75rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-family: sans-serif;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 8px;
+    padding: 0.85rem 1.1rem;
+    margin: 1rem 0;
+    font-family: sans-serif;
+    font-size: 0.9rem;
+    border-left: 3px solid;
+  }
+  .callout-key {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: #3730a3;
+  }
+  .callout-warn {
+    background: var(--warn-light);
+    border-color: var(--warn);
+    color: #92400e;
+  }
+  .callout-exam {
+    background: var(--danger-light);
+    border-color: var(--danger);
+    color: #991b1b;
+  }
+  .callout-tip {
+    background: var(--success-light);
+    border-color: var(--success);
+    color: #065f46;
+  }
+  .callout-label {
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: sans-serif;
+    font-size: 0.88rem;
+    margin: 1rem 0;
+  }
+  th {
+    background: var(--gray-light);
+    text-align: left;
+    padding: 8px 12px;
+    font-weight: 600;
+    border: 1px solid var(--gray-border);
+    color: var(--text);
+  }
+  td {
+    padding: 7px 12px;
+    border: 1px solid var(--gray-border);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: var(--gray-light); }
+
+  /* Lists */
+  ul, ol { padding-left: 1.4rem; margin: 0.6rem 0; }
+  li { margin-bottom: 0.35rem; line-height: 1.65; }
+  li ul { margin-top: 0.3rem; }
+
+  /* Code */
+  code {
+    background: var(--gray-light);
+    border: 1px solid var(--gray-border);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+    color: #be185d;
+  }
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.84rem;
+    overflow-x: auto;
+    margin: 0.8rem 0;
+    line-height: 1.6;
+  }
+
+  /* Quote */
+  blockquote {
+    border-left: 3px solid var(--gray-border);
+    padding-left: 1rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 0.8rem 0;
+    font-size: 0.92rem;
+  }
+
+  p { margin-bottom: 0.6rem; }
+  strong { font-weight: 700; }
+
+  h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: sans-serif;
+    color: var(--accent);
+    margin: 1.1rem 0 0.5rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<div class="doc-header">
+  <h1>COMP3310 Week 6 — Complete Notes</h1>
+  <p>Covers T5b (HTTP/Web) + T5c (Real-Time Communication) · Based on Slides + Lecture Transcript</p>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <div class="toc-grid">
+    <div>
+      <p><strong style="font-family:sans-serif;font-size:0.8rem;">Part 1 — HTTP &amp; Web</strong></p>
+      <a href="#s1">1. Transport Protocol Selection Basics</a><br>
+      <a href="#s2">2. Web History and Origins</a><br>
+      <a href="#s3">3. HTTP Version Evolution</a><br>
+      <a href="#s4">4. URL Structure in Detail</a><br>
+      <a href="#s5">5. Static vs Dynamic Content</a><br>
+      <a href="#s6">6. HTTP 8-Step Flow</a><br>
+      <a href="#s7">7. Request Methods</a><br>
+      <a href="#s8">8. Response Status Codes</a><br>
+      <a href="#s9">9. Telnet Experiment Walkthrough</a><br>
+      <a href="#s10">10. HTTP Headers in Detail</a><br>
+      <a href="#s11">11. Statelessness &amp; Cookies</a><br>
+      <a href="#s12">12. Protocol Performance Issues</a><br>
+      <a href="#s13">13. Persistent Connections &amp; Pipelining</a><br>
+      <a href="#s14">14. Real-World Performance Tools</a><br>
+      <a href="#s15">15. Caching Mechanisms</a><br>
+      <a href="#s16">16. Proxies</a><br>
+      <a href="#s17">17. CDN</a><br>
+      <a href="#s18">18. HTTP 2.0 / 3.0 / QUIC</a><br>
+      <a href="#s19">19. HTTP Abused as a Transport</a><br>
+    </div>
+    <div>
+      <p><strong style="font-family:sans-serif;font-size:0.8rem;">Part 2 — Real-Time Communication</strong></p>
+      <a href="#r1">1. Challenges of Real-Time Traffic</a><br>
+      <a href="#r2">2. Real-Time Requirements &amp; Trade-offs</a><br>
+      <a href="#r3">3. Components of Network Delay</a><br>
+      <a href="#r4">4. Jitter (Packet Delay Variation)</a><br>
+      <a href="#r5">5. Receiver Buffer Mechanism</a><br>
+      <a href="#r6">6. Buffer Size Trade-offs</a><br>
+      <a href="#r7">7. Loss Recovery Techniques</a><br>
+      <a href="#r8">8. IP Multicast</a><br>
+      <a href="#r9">9. Elastic Buffer / Adaptive Playout</a><br>
+      <a href="#r10">10. RTP Protocol</a><br>
+      <a href="#r11">11. RTCP Control Protocol</a><br>
+      <a href="#r12">12. Video Conferencing Protocol Stack</a><br>
+      <a href="#r13">13. SIP — Session Initiation Protocol</a><br>
+      <a href="#r14">14. Unicast Streaming &amp; RTSP</a><br>
+      <a href="#r15">15. DASH / HTTP Streaming</a><br>
+      <a href="#r16">16. Summary</a><br>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PART 1 ==================== -->
+<div class="part">Part 1 — HTTP &amp; Web (T5b)</div>
+
+<!-- S1 -->
+<div class="section" id="s1">
+  <div class="section-header">
+    <h2>1. Transport Protocol Selection Basics</h2>
+    <span class="slide-ref">Slide 2</span>
+  </div>
+
+  <p>This is the foundational premise running through the entire topic: <strong>the application layer chooses its own transport protocol</strong>. There is no mandate to use TCP or UDP — you could even write your own transport protocol (as long as routers will forward it and it doesn't look like a DDoS).</p>
+
+  <table>
+    <tr><th>Scenario</th><th>Choose TCP</th><th>Choose UDP</th></tr>
+    <tr><td>Data volume</td><td>Large content transfer</td><td>Short messages, single queries</td></tr>
+    <tr><td>Session</td><td>Long, complex sessions</td><td>Lightweight, single request-response</td></tr>
+    <tr><td>Reliability</td><td>Must be guaranteed</td><td>Ask again if lost (ARQ is enough)</td></tr>
+    <tr><td>Server state</td><td>Needs to maintain connection state</td><td>Nearly stateless server</td></tr>
+    <tr><td>Protocol design burden</td><td>High — byte stream, must define message boundaries yourself</td><td>Low</td></tr>
+  </table>
+
+  <div class="callout callout-key">
+    <div class="callout-label">Key Concept</div>
+    TCP is a bytestream — there are no message boundaries. The application layer must define where a command starts and ends. HTTP uses a blank line <code>\n\n</code> as the command terminator, which is exactly this principle in practice.
+  </div>
+</div>
+
+<!-- S2 -->
+<div class="section" id="s2">
+  <div class="section-header">
+    <h2>2. Web History and Origins</h2>
+    <span class="slide-ref">Slide 3</span>
+  </div>
+
+  <h3>The Problem with Early Internet</h3>
+  <ul>
+    <li>Everything ran locally — if you wanted something, you downloaded it first</li>
+    <li>Content discovery relied on: magazines, newsgroups, mailing lists — people shared IP addresses, not domain names</li>
+    <li>Content discovery (Discovery) was a fundamental unsolved problem</li>
+  </ul>
+
+  <h3>Predecessor Protocols (Archie / Gopher / WAIS) — Exam-Relevant</h3>
+  <ul>
+    <li><strong>Archie</strong>: A search tool for archives/repositories (Archive → Archie)</li>
+    <li><strong>Gopher</strong>: Page-link browsing for content; from American slang "go for something"</li>
+    <li><strong>WAIS</strong> (Wide Area Information Service): Designed by a committee/standards body; spec books were inches thick and had to be purchased; no free server implementations → nobody used it</li>
+  </ul>
+  <div class="callout callout-warn">
+    <div class="callout-label">Lecture Aside — Remember This</div>
+    WAIS is the classic counterexample of "committee design vs. open academic work": Archie and Gopher were developed by academics and released open-source; WAIS was developed by a standards body and sold for a fee → Result: WAIS died; Archie/Gopher didn't last either; but the Web won.
+  </div>
+
+  <h3>Tim Berners-Lee and the WWW</h3>
+  <ul>
+    <li>IT manager at CERN (the high-energy physics lab on the French-Swiss border), 1989</li>
+    <li>Constantly asked: "Where is this document? How do I get that dataset?" → Wanted to automate this</li>
+    <li>Core idea came from <strong>Hypertext</strong>: text that can embed links pointing to other content</li>
+    <li>Invented HTML (markup language) + HTTP (transfer protocol)</li>
+    <li>First URL: <code>http://info.cern.ch/hypertext/WWW/TheProject.html</code> (CERN once shut down the server; strong public backlash led to it being restored; still accessible today)</li>
+    <li>Now leads W3C (governs HTML/XML standards); HTTP is managed by IETF</li>
+  </ul>
+</div>
+
+<!-- S3 -->
+<div class="section" id="s3">
+  <div class="section-header">
+    <h2>3. HTTP Version Evolution</h2>
+    <span class="slide-ref">Slide 4</span>
+  </div>
+
+  <table>
+    <tr><th>Version</th><th>Year</th><th>Key Changes</th></tr>
+    <tr><td>HTTP/0.9</td><td>1989</td><td>Tim's internal test version; GET only</td></tr>
+    <tr><td>HTTP/1.0</td><td>RFC 1945</td><td>Official release; port 80, TCP, text protocol, one connection per resource</td></tr>
+    <tr><td>HTTP/1.1</td><td>~1997</td><td>Persistent connections, pipelining; still widely used (~30 years later)</td></tr>
+    <tr><td>SPDY</td><td>~2010</td><td>Google experiment; not widely adopted</td></tr>
+    <tr><td>HTTP/2.0</td><td>~2015</td><td>Request prioritization, header compression, Server Push (controversial)</td></tr>
+    <tr><td>HTTP/3.0</td><td>RFC 2021</td><td>Based on QUIC/UDP; built-in security; eliminates TCP head-of-line blocking</td></tr>
+  </table>
+
+  <div class="callout callout-key">
+    <div class="callout-label">Version Negotiation Mechanism</div>
+    Every request carries a version number (e.g. <code>GET / HTTP/1.0</code>), and the server responds with its own supported version (e.g. <code>HTTP/1.1</code>), implicitly signaling "I support higher versions." All servers are backward compatible → automatic negotiation of the highest common version.
+  </div>
+</div>
+
+<!-- S4 -->
+<div class="section" id="s4">
+  <div class="section-header">
+    <h2>4. URL Structure in Detail</h2>
+    <span class="slide-ref">Slides 5–7</span>
+  </div>
+
+  <pre>scheme://user:password@host:port/path?query#fragment</pre>
+
+  <h3>Scheme (Protocol Prefix)</h3>
+  <p>IANA maintains a registry; currently ~280 registered schemes. Common ones:</p>
+  <table>
+    <tr><th>Scheme</th><th>Purpose</th><th>Notes</th></tr>
+    <tr><td><code>http://</code> / <code>https://</code></td><td>Web</td><td>Default ports 80 / 443</td></tr>
+    <tr><td><code>callto://</code> / <code>tel://</code></td><td>Phone calls</td><td>Tapping on mobile triggers dialer directly</td></tr>
+    <tr><td><code>mailto://</code></td><td>Email</td><td>Can pre-fill subject / body</td></tr>
+    <tr><td><code>file://</code></td><td>Local files</td><td>PowerPoint doesn't recognize it (too OS-specific)</td></tr>
+    <tr><td><code>ftp://</code></td><td>File transfer</td><td>Crude: can only fetch whole files</td></tr>
+  </table>
+
+  <h3>User:Password (Embedded Credentials)</h3>
+  <div class="callout callout-exam">
+    <div class="callout-label">Security Warning — Exam Point</div>
+    Username and password are written in <strong>plaintext</strong> in the URL. Even if the connection is encrypted with HTTPS, the credentials are still visible in the URL bar. Never do this.
+  </div>
+
+  <h3>Host &amp; Port</h3>
+  <ul>
+    <li>Host: a DNS-resolvable name or an IP address</li>
+    <li>If port is omitted, defaults to 80; if non-80, must be stated explicitly</li>
+    <li><strong>The power of the Host Header</strong>: multiple virtual hosts can run on the same IP; the server uses the <code>Host</code> header in the HTTP request to distinguish "which website do you want?"</li>
+  </ul>
+
+  <h3>Path</h3>
+  <ul>
+    <li>Can be a real path in the filesystem</li>
+    <li>Can also trigger a server-side program (e.g. a database query)</li>
+    <li>The server doesn't need to tell the client whether the response came from a file or a program — as long as the format is correct</li>
+  </ul>
+
+  <h3>#Fragment (Anchor)</h3>
+  <p>Jumps to a specific position within the page, e.g. <code>http://en.wikipedia.org/wiki/IEEE_802#See_also</code>. This part is never sent to the server — it is handled entirely by the browser.</p>
+
+  <h3>?Query (Query Parameters)</h3>
+  <ul>
+    <li>Passes parameters to server-side programs; multiple parameters joined with <code>&amp;</code></li>
+    <li>Much of the "gibberish" you see in URLs is a <strong>tracking token</strong>, not a functional parameter</li>
+  </ul>
+  <div class="callout callout-warn">
+    <div class="callout-label">Lecture Concrete Example</div>
+    Telnet to Google.com:80 and send a GET request — you get a 302 redirect; the Location points to google.com.au with <code>?gfe_rd=cr&amp;dcr=0&amp;ei=xxx</code> appended. These query params are tracking tokens letting the Australian server know "you came from our US machine," so all your search results can be traced.
+  </div>
+</div>
+
+<!-- S5 -->
+<div class="section" id="s5">
+  <div class="section-header">
+    <h2>5. Static vs Dynamic Content</h2>
+    <span class="slide-ref">Slide 8</span>
+  </div>
+
+  <h3>Static Content</h3>
+  <p>The server returns a file directly; content is fixed.</p>
+
+  <h3>Server-Side Dynamic (Early: CGI)</h3>
+  <ul>
+    <li>CGI = Common Gateway Interface: client sends a request, server runs a program and returns its output as an HTTP response</li>
+    <li>Downside: 1 million simultaneous clients → server CPU melts down</li>
+  </ul>
+
+  <h3>Client-Side Dynamic (Modern Mainstream)</h3>
+  <ul>
+    <li>Server pushes data (sometimes more than needed) to the client</li>
+    <li>Client-side JS renders, processes, and handles interactions locally</li>
+    <li>CPU load is offloaded from the server</li>
+  </ul>
+
+  <h3>Combination (The Reality)</h3>
+  <p>The Google Maps example:</p>
+  <ul>
+    <li>Tiles: prefetch the surrounding ring based on the viewport; dragging triggers automatic prefetch of new edges</li>
+    <li>Road network overlay: a separate data layer</li>
+    <li>Real-time traffic overlay: yet another layer, continuously updated</li>
+    <li>Three data layers transferred independently, all running over the same HTTP connection</li>
+  </ul>
+
+  <div class="callout callout-key">
+    <div class="callout-label">Key Point</div>
+    The client (browser) has no idea whether what it received came from a static file or was dynamically generated by a program — it just renders it if the format is correct. This is the core source of flexibility in Web architecture.
+  </div>
+</div>
+
+<!-- S6 -->
+<div class="section" id="s6">
+  <div class="section-header">
+    <h2>6. The Complete HTTP 8-Step Flow</h2>
+    <span class="slide-ref">Slide 9</span>
+  </div>
+  <ol>
+    <li><strong>Parse the URL</strong> — extract scheme / host / port / path / query / fragment</li>
+    <li><strong>DNS resolution</strong> — resolve host to an IP address</li>
+    <li><strong>Establish TCP connection</strong> — three-way handshake to IP:Port</li>
+    <li><strong>Send HTTP request</strong> — Method + Path + version + Headers</li>
+    <li><strong>Receive content</strong> — response headers + body</li>
+    <li><strong>Close TCP connection</strong> (HTTP/1.0 behavior)</li>
+    <li><strong>Unpack content</strong> — decompress, decode, etc.</li>
+    <li><strong>Render</strong> — browser renders HTML, triggering more GETs</li>
+  </ol>
+  <div class="callout callout-warn">
+    <div class="callout-label">HTTP/1.0 Performance Problem Hides Here</div>
+    A webpage has 100+ resources; HTTP/1.0 repeats steps 3–6 for every resource → massive time wasted on TCP handshakes and teardowns.
+  </div>
+</div>
+
+<!-- S7 -->
+<div class="section" id="s7">
+  <div class="section-header">
+    <h2>7. HTTP Request Methods</h2>
+    <span class="slide-ref">Slide 10</span>
+  </div>
+
+  <table>
+    <tr><th>Method</th><th>Semantics</th><th>Current Status</th></tr>
+    <tr><td><code>GET</code></td><td>Retrieve a resource</td><td>Most common</td></tr>
+    <tr><td><code>HEAD</code></td><td>Retrieve headers only, no body</td><td>Used for cache validation; saves bandwidth</td></tr>
+    <tr><td><code>POST</code></td><td>Submit data, append to resource</td><td>Used for form submission, interactive sites</td></tr>
+    <tr><td><code>PUT</code></td><td>Create/replace a file on the server</td><td>Largely deprecated — allowing remote writes is extremely risky</td></tr>
+    <tr><td><code>DELETE</code></td><td>Delete a resource</td><td>Largely deprecated</td></tr>
+    <tr><td><code>LINK / UNLINK</code></td><td>Create/destroy links between resources</td><td>Obsolete</td></tr>
+  </table>
+
+  <div class="callout callout-key">
+    <div class="callout-label">Importance of HEAD</div>
+    You can learn a resource's "last modified time" or "whether its size has changed" without downloading the whole file — this is the core mechanism behind cache validation. Far more efficient than downloading a 1MB image just to compare.
+  </div>
+</div>
+
+<!-- S8 -->
+<div class="section" id="s8">
+  <div class="section-header">
+    <h2>8. HTTP Response Status Codes</h2>
+    <span class="slide-ref">Slide 11</span>
+  </div>
+
+  <table>
+    <tr><th>Range</th><th>Category</th><th>Typical Examples</th></tr>
+    <tr><td>1xx</td><td>Informational</td><td>Rarely used in practice</td></tr>
+    <tr><td>2xx</td><td>Success</td><td>200 OK; 201 Created</td></tr>
+    <tr><td>3xx</td><td>Redirection</td><td>301 Moved Permanently; 302 Found/Moved Temporarily</td></tr>
+    <tr><td>4xx</td><td>Client error</td><td>400 Bad Request; 403 Forbidden; 404 Not Found</td></tr>
+    <tr><td>5xx</td><td>Server error</td><td>500 Internal Server Error; 503 Service Unavailable</td></tr>
+  </table>
+
+  <h3>301 vs 302 — Important Distinction</h3>
+  <ul>
+    <li><strong>301 Moved Permanently</strong>: Gone for good. The client should update its bookmarks and <em>never come back to this address</em></li>
+    <li><strong>302 Moved Temporarily / Found</strong>: Temporarily away, but <em>keep coming to this address</em> in future; I'll tell you where it is right now</li>
+  </ul>
+
+  <div class="callout callout-exam">
+    <div class="callout-label">Exam Point — Reason Phrases Are Not Standardized</div>
+    The text description (reason phrase) of a status code is <strong>not standardized</strong>. Google returns "302 Found" rather than "302 Moved Temporarily," and that's fine — the three-digit number is authoritative; the text is just a hint.
+  </div>
+
+  <h3>Practical Distinction (from Transcript)</h3>
+  <ul>
+    <li>4xx: <strong>your fault</strong> — fix the URL or authentication</li>
+    <li>5xx: <strong>server's fault</strong> — not your problem; wait and try again</li>
+    <li>503 Service Unavailable: a backend process on the server has crashed</li>
+  </ul>
+</div>
+
+<!-- S9 -->
+<div class="section" id="s9">
+  <div class="section-header">
+    <h2>9. Telnet Experiment Walkthrough</h2>
+    <span class="slide-ref">Slides 12–13</span>
+  </div>
+
+  <p>Telnet was originally a remote login protocol, but because HTTP is a plain-text protocol, Telnet can be used to manually send HTTP requests and observe protocol behavior.</p>
+
+  <pre>telnet www.google.com 80
+GET / HTTP/1.0\n\n</pre>
+
+  <p>Note: the request must end with <strong>two newlines</strong> (one blank line) — this is HTTP's command terminator.</p>
+
+  <h3>Normal Response (302)</h3>
+  <ul>
+    <li>Returns <code>HTTP/1.0 302 Found</code> (note: Google uses "Found" not "Moved Temporarily")</li>
+    <li>Includes <code>Cache-Control: private</code>, <code>Content-Type: text/html; charset=UTF-8</code></li>
+    <li><code>Location: http://www.google.com.au/...</code> — redirects to the Australian version</li>
+    <li>Body is an HTML snippet describing the redirect target</li>
+  </ul>
+
+  <h3>Error Response (400)</h3>
+  <pre>GET / HTTP/4.0\n\n</pre>
+  <ul>
+    <li>HTTP/4.0 doesn't exist → server returns <code>400 Bad Request</code></li>
+    <li>Shows that version number validation is built into the protocol, not optional</li>
+  </ul>
+
+  <h3>CommBank Example (From Transcript)</h3>
+  <p>Telnet to commbank.com.au:80 → immediately receives a redirect requiring a switch to HTTPS (port 443). This is the standard practice for enforcing HTTPS on banking sites.</p>
+</div>
+
+<!-- S10 -->
+<div class="section" id="s10">
+  <div class="section-header">
+    <h2>10. HTTP Headers in Detail</h2>
+    <span class="slide-ref">Slide 14</span>
+  </div>
+
+  <p>Headers exist in both request and response directions, carrying metadata about the resource and connection.</p>
+
+  <h3>Client → Server</h3>
+  <table>
+    <tr><th>Header</th><th>Purpose</th><th>Transcript Notes</th></tr>
+    <tr><td><code>User-Agent</code></td><td>Browser/device info</td><td>Server can use this to serve a simplified page to mobile and a full page to desktop; differences are smaller now but still relevant</td></tr>
+    <tr><td><code>Accept</code></td><td>Acceptable content types</td><td></td></tr>
+    <tr><td><code>Accept-Language</code></td><td>Preferred language list</td><td>Can say "I want Chinese / Korean / Vietnamese"; English defaults first</td></tr>
+    <tr><td><code>Accept-Encoding</code></td><td>Supported compression formats</td><td></td></tr>
+    <tr><td><code>Cookie</code></td><td>Sends cookies previously set by the server</td><td>Sent automatically for the same domain</td></tr>
+    <tr><td><code>Referer</code></td><td>Which page the link came from</td><td>Intentionally misspelled (should be "Referrer") — RFC had the typo and no one caught it before it was merged; can never be changed now; news sites rely on it to monitor traffic sources</td></tr>
+    <tr><td><code>Authorization</code></td><td>Authentication credentials</td><td>American spelling (British is "Authorisation")</td></tr>
+    <tr><td><code>Host</code></td><td>Target virtual host name</td><td>Essential for multiple virtual hosts on the same IP</td></tr>
+    <tr><td><code>Range</code></td><td>Request only a byte range of the resource</td><td>Core mechanism behind video seek/scrubbing</td></tr>
+  </table>
+
+  <h3>Server → Client</h3>
+  <table>
+    <tr><th>Header</th><th>Purpose</th></tr>
+    <tr><td><code>Content-Type</code></td><td>Content type (MIME type)</td></tr>
+    <tr><td><code>Content-Length</code></td><td>Body byte count</td></tr>
+    <tr><td><code>Content-Encoding</code></td><td>Compression format</td></tr>
+    <tr><td><code>Content-Language</code></td><td>Language of the content</td></tr>
+    <tr><td><code>Set-Cookie</code></td><td>Write a cookie to the client</td></tr>
+    <tr><td><code>Location</code></td><td>Redirect target (used with 3xx)</td></tr>
+    <tr><td><code>Last-Modified</code></td><td>Time resource was last modified (for caching)</td></tr>
+    <tr><td><code>Expires</code></td><td>Cache expiry time</td></tr>
+    <tr><td><code>ETag</code></td><td>Resource content fingerprint (similar to a checksum)</td></tr>
+    <tr><td><code>Cache-Control</code></td><td>Cache policy directives</td></tr>
+  </table>
+</div>
+
+<!-- S11 -->
+<div class="section" id="s11">
+  <div class="section-header">
+    <h2>11. HTTP Statelessness &amp; Cookies</h2>
+    <span class="slide-ref">Slide 15</span>
+  </div>
+
+  <div class="callout callout-key">
+    <div class="callout-label">Key Concept</div>
+    HTTP is a <strong>stateless protocol</strong>: every request is completely independent; the server saves no state for you. A TCP connection may have closed hours ago; when you make a new request the server doesn't recognize you.
+  </div>
+
+  <h3>Two Ways to Maintain a Session</h3>
+  <ol>
+    <li><strong>Session Token in the URL</strong> — the "gibberish" at the end of a URL, containing a timestamp (e.g. "expires in one hour")</li>
+    <li><strong>Cookies</strong> — proposed by Netscape; written by the server, stored by the client, automatically sent with requests to the relevant domain</li>
+  </ol>
+
+  <h3>Cookie Types</h3>
+  <table>
+    <tr><th>Type</th><th>Characteristics</th></tr>
+    <tr><td>Session Cookie</td><td>Deleted when browser/tab is closed</td></tr>
+    <tr><td>Persistent Cookie</td><td>Has an Expiry field; persists until that date</td></tr>
+    <tr><td>Secure Cookie</td><td>Transmitted only over HTTPS</td></tr>
+    <tr><td>Third-party Cookie</td><td>Set by a third-party website (core tracking mechanism)</td></tr>
+  </table>
+
+  <h3>Third-Party Cookie Tracking Mechanism (Detailed in Transcript)</h3>
+  <ol>
+    <li>You visit the ANU homepage; at the bottom of the page is a Facebook icon</li>
+    <li>That icon doesn't live on ANU's server — it's a resource from Facebook's server → your browser fetches it from Facebook</li>
+    <li>Facebook returns the icon and sets a cookie on your browser</li>
+    <li>You visit the Canberra Times; same Facebook icon appears; your browser requests it again, sending that same cookie</li>
+    <li>Facebook now knows: this user visited both ANU and the Canberra Times</li>
+    <li>After accumulating enough sites, Facebook has a detailed picture of your browsing behavior</li>
+  </ol>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">The 1×1 Pixel Tracking Trick</div>
+    Some sites embed a 1×1 white transparent image sourced from a third-party server. You can't see it, but your browser must request it to render the page → the third-party server seizes the chance to set a cookie and track you.
+  </div>
+
+  <p>Transcript suggestion: check your browser's cookie list — after a week of normal browsing you might have <strong>thousands</strong>.</p>
+</div>
+
+<!-- S12 -->
+<div class="section" id="s12">
+  <div class="section-header">
+    <h2>12. Protocol Performance Issues</h2>
+    <span class="slide-ref">Slides 16–17</span>
+  </div>
+
+  <h3>Why Performance Matters</h3>
+  <ul>
+    <li>1-second slower page load → users go buy from a competitor</li>
+    <li>Modern web pages have 100+ individual resources: HTML, JS, CSS, fonts, images, iframes…</li>
+    <li>The actual content (HTML text) is a tiny fraction of total data (ANU homepage HTML is a small blue block; images are a large purple block)</li>
+  </ul>
+
+  <h3>Sources of Performance Bottlenecks</h3>
+  <ul>
+    <li>Processing capacity of browser and server</li>
+    <li>Content structure and complexity</li>
+    <li>HTTP protocol itself (connection management)</li>
+    <li>TCP protocol behavior (congestion control — covered in Topic 7)</li>
+    <li>Network path, bandwidth, RTT</li>
+  </ul>
+
+  <h3>Three Improvement Approaches</h3>
+  <ol>
+    <li>Adapt content to client capabilities (smaller images for small screens)</li>
+    <li>Caching — avoid re-downloading the same content</li>
+    <li>Improve HTTP connection management</li>
+  </ol>
+</div>
+
+<!-- S13 -->
+<div class="section" id="s13">
+  <div class="section-header">
+    <h2>13. Persistent Connections, Pipelining &amp; Parallel Requests</h2>
+    <span class="slide-ref">Slides 18–21</span>
+  </div>
+
+  <h3>HTTP/1.0 — Original Mode (Slow)</h3>
+  <ul>
+    <li>Each resource: TCP open → HTTP GET → download → TCP close</li>
+    <li>Every TCP handshake/teardown is pure wasted time</li>
+    <li>The fraction of time actually transferring data is tiny (most time spent handshaking and waiting)</li>
+    <li>Gets worse the more resources a page has</li>
+  </ul>
+
+  <h3>Approach 1: Parallelism</h3>
+  <ul>
+    <li>Open 8+ TCP connections simultaneously and GET in parallel</li>
+    <li>Pro: no server-side changes needed</li>
+    <li>Cons: bursty CPU/NIC load; bursty traffic → higher packet loss; 8× resource cost on both ends; 100 resources on ANU homepage → open 100 connections?</li>
+  </ul>
+
+  <h3>Approach 2: Persistent Connection — HTTP/1.1</h3>
+  <ul>
+    <li>Open one TCP connection, request multiple resources sequentially, close when done</li>
+    <li>Eliminates repeated handshake/teardown overhead</li>
+    <li>Still sequential: must wait for each response before sending the next request</li>
+  </ul>
+
+  <h3>Approach 3: Pipelining — HTTP/1.1</h3>
+  <ul>
+    <li>While downloading HTML, parse it; as soon as you discover you need an image, immediately send a GET without waiting for the previous one to finish</li>
+    <li>Server processes requests in order and returns responses in order</li>
+    <li>Problem 1: <strong>Head-of-Line (HOL) Blocking</strong> — one slow resource (database query, damaged disk) blocks everything behind it</li>
+    <li>Problem 2: Impact of TCP congestion control (detailed in Topic 7)</li>
+  </ul>
+
+  <div class="callout callout-key">
+    <div class="callout-label">What Modern Browsers Actually Do</div>
+    A mix of all three: persistent connections + pipelining + limited parallelism. Timeout on a slow resource triggers a retry. No single approach is perfect.
+  </div>
+
+  <h3>Reading the Comparison Diagram (Slide 21)</h3>
+  <ul>
+    <li>Yellow = TCP open; Green = HTTP request; Blue = data transfer; Red = TCP close</li>
+    <li>Original: every resource has a full yellow-green-blue-red cycle with lots of idle time</li>
+    <li>Persistent: removes the repeated yellow/red in the middle; total time noticeably shorter</li>
+    <li>Persistent + Pipeline: requests are sent earlier; blue blocks are more compact, but still constrained by TCP and HOL</li>
+  </ul>
+</div>
+
+<!-- S14 -->
+<div class="section" id="s14">
+  <div class="section-header">
+    <h2>14. Real-World Performance Tools</h2>
+    <span class="slide-ref">Slides 22–23</span>
+  </div>
+
+  <h3>Webpagetest.org (Slide 22)</h3>
+  <ul>
+    <li>ANU homepage: <strong>100+ resources</strong>, one row each, time on x-axis</li>
+    <li>Each resource shows: DNS lookup → TCP connect → SSL handshake → HTTP request → data receive phases</li>
+    <li>First several rows are ANU's own JS/CSS, then: Google Tag Manager, Google Analytics, Facebook…</li>
+    <li>From ~#88 onward almost entirely third-party trackers: DoubleClick.net (advertisers), LinkedIn, Twitter…</li>
+    <li>Content (HTML itself) = small blue block; images = large purple block (52% of requests, 87% of bytes)</li>
+  </ul>
+
+  <h3>GTmetrix.com (Slide 23)</h3>
+  <ul>
+    <li>ANU homepage once rated F, 49% Performance / 43% Structure</li>
+    <li>First Contentful Paint 3.1s (time until browser can render first content)</li>
+    <li>LCP (Largest Contentful Paint) 3.9s</li>
+    <li>Recommended fixes: eliminate render-blocking resources, correctly size images, use CDN, efficient caching, switch to HTTP/2…</li>
+  </ul>
+
+  <div class="callout callout-tip">
+    <div class="callout-label">Practical Tip (Transcript)</div>
+    Run your favorite (or most-hated) website through one of these tools and see how many third parties you didn't know were tracking you.
+  </div>
+</div>
+
+<!-- S15 -->
+<div class="section" id="s15">
+  <div class="section-header">
+    <h2>15. Caching Mechanisms</h2>
+    <span class="slide-ref">Slides 24 / 28</span>
+  </div>
+
+  <h3>Browser Local Cache</h3>
+  <ul>
+    <li>Sites you've visited once you'll probably visit again; the browser optimistically stores everything</li>
+    <li>Must validate whether a resource has changed — cannot blindly use the old version</li>
+    <li>The browser tracks which sites you visit most frequently and prioritizes their cache</li>
+  </ul>
+
+  <h3>Cache Validation Mechanisms (Built into HTTP)</h3>
+  <table>
+    <tr><th>Mechanism</th><th>HTTP Version</th><th>How It Works</th></tr>
+    <tr><td><code>Expires</code></td><td>1.0</td><td>Server tells you "use the cache until this date"</td></tr>
+    <tr><td><code>Last-Modified</code></td><td>1.0</td><td>Last modification time; client can use <code>If-Modified-Since</code> conditional GET to validate</td></tr>
+    <tr><td><code>ETag</code></td><td>1.1</td><td>Like a content fingerprint/checksum; client uses <code>If-None-Match</code> to validate</td></tr>
+    <tr><td><code>HEAD</code> request</td><td>1.0</td><td>Fetch headers only, not body; used for quick "has it changed?" check</td></tr>
+  </table>
+
+  <h3>Partial GET (HTTP/1.1)</h3>
+  <ul>
+    <li>Range header: request only a specific byte range of a resource</li>
+    <li>Most common use: video player requests frames for a specific time window; YouTube's "grey progress bar" prefetch works this way</li>
+  </ul>
+
+  <div class="callout callout-key">
+    <div class="callout-label">Original Design Intent</div>
+    Tim Berners-Lee built caching into HTTP when he designed it in 1989 — it wasn't bolted on later; it's a core design feature of the protocol.
+  </div>
+</div>
+
+<!-- S16 -->
+<div class="section" id="s16">
+  <div class="section-header">
+    <h2>16. Proxies and Caching Proxies</h2>
+    <span class="slide-ref">Slides 25–27</span>
+  </div>
+
+  <h3>Proxy Basics</h3>
+  <p>A proxy sits between the client and server and does work on the client's behalf. To the client, the proxy looks like a server; to the server, the proxy looks like a client — it <strong>splits one TCP connection into two</strong>.</p>
+
+  <h3>Benefits of a Caching Proxy</h3>
+  <table>
+    <tr><th>Beneficiary</th><th>Specific Benefit</th></tr>
+    <tr><td>Client</td><td>Closer cache → lower latency</td></tr>
+    <tr><td>Network / ISP</td><td>Reduced egress bandwidth (content hits inside campus/corporate network)</td></tr>
+    <tr><td>Server</td><td>Fewer requests, lower load</td></tr>
+    <tr><td>Organizational security</td><td>Can perform security scanning here (check file types, executable content)</td></tr>
+    <tr><td>Access control</td><td>Organization can enforce access policies (block certain content types)</td></tr>
+  </table>
+
+  <h3>Limitations of Caching Proxies</h3>
+  <ul>
+    <li>Encrypted traffic (HTTPS) cannot be read → cannot be cached</li>
+    <li>Dynamic content (same URL but different database results) cannot be cached</li>
+    <li>"One-off" content occupies cache space (one student looked up something nobody else will ever search)</li>
+    <li>VPN traffic bypasses the proxy</li>
+  </ul>
+
+  <h3>Proxy-Specific HTTP Headers</h3>
+  <ul>
+    <li><code>Proxy-Authenticate</code>: proxy authentication</li>
+    <li><code>Forwarded</code>: forwarding info (original client IP)</li>
+    <li><code>Proxy-Connection</code>: proxy connection control</li>
+  </ul>
+
+  <h3>How Does the Client Know Which Proxy to Use?</h3>
+  <ul>
+    <li>Manually configure proxy address in the browser</li>
+    <li>Automatic proxy discovery (PAC file)</li>
+    <li>Network admin performs <strong>Deep Packet Inspection (DPI)</strong>: inspects HTTP payload of every TCP flow and transparently intercepts → extremely expensive but some do it</li>
+  </ul>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">Security Trap</div>
+    If you think you're connected to the proxy via HTTPS but the proxy forwards traffic to the outside in plain HTTP, you think you're secure but you're not. The proxy has stripped your encryption and is forwarding unencrypted.
+  </div>
+</div>
+
+<!-- S17 -->
+<div class="section" id="s17">
+  <div class="section-header">
+    <h2>17. CDN (Content Delivery Network)</h2>
+    <span class="slide-ref">Slide 29</span>
+  </div>
+
+  <h3>Difference from Caching Proxies</h3>
+  <ul>
+    <li>Caching proxy: passive — only fills on client request</li>
+    <li>CDN: proactive — <strong>pushes content to cache nodes worldwide before requests arrive</strong></li>
+  </ul>
+
+  <h3>How CDNs Work</h3>
+  <ol>
+    <li>Content provider (e.g. CNN) contracts with a CDN</li>
+    <li>CDN deploys cache nodes globally; content is pushed there in advance</li>
+    <li>DNS is configured: user queries cnn.com → DNS returns the nearest cache node IP</li>
+    <li>Resource links in HTML also point to cache nodes (not the origin server)</li>
+  </ol>
+
+  <h3>The Akamai Story (Detailed in Transcript)</h3>
+  <ul>
+    <li>Founded 1995–1996; saw the opportunity back in the HTTP/1.0 era</li>
+    <li>Hundreds of PoPs (Points of Presence) worldwide, seeing massive global Web traffic</li>
+    <li>Deep insight into network behavior and attack patterns</li>
+    <li>Still an extremely profitable and effective commercial company today</li>
+  </ul>
+
+  <div class="callout callout-key">
+    <div class="callout-label">Win:Win:Win</div>
+    Users win (faster), content providers win (less server load), ISPs win (less backbone traffic). All three benefit — that's the fundamental reason CDNs succeeded.
+  </div>
+</div>
+
+<!-- S18 -->
+<div class="section" id="s18">
+  <div class="section-header">
+    <h2>18. HTTP 2.0 / 3.0 / QUIC</h2>
+    <span class="slide-ref">Slides 30–32</span>
+  </div>
+
+  <h3>HTTP/2.0</h3>
+  <ul>
+    <li>Clients can set <strong>priorities</strong> on server requests (send HTML/CSS first, images can wait)</li>
+    <li><strong>Header compression</strong> (HPACK)</li>
+    <li><strong>Server Push</strong>: server predicts what you'll need next and proactively sends it ("you want the homepage, you'll definitely want this logo too")</li>
+    <li>Server Push is highly controversial and complex to implement; HTTP/2.1 hasn't appeared yet</li>
+    <li>Apache and other servers added some extra optimizations in their HTTP/2 implementations but it's somewhat messy</li>
+  </ul>
+
+  <h3>HTTP/3 / QUIC</h3>
+
+  <div class="callout callout-exam">
+    <div class="callout-label">High-Priority Exam Area</div>
+    HTTP/3 is based on QUIC; QUIC is based on UDP but adds some TCP functionality. The fundamental goal is to eliminate TCP's head-of-line blocking and reduce the number of RTTs needed to establish a connection.
+  </div>
+
+  <table>
+    <tr><th>Feature</th><th>Details</th></tr>
+    <tr><td>Base protocol</td><td>UDP (Quick UDP Internet Connections)</td></tr>
+    <tr><td>Reliability</td><td>Self-implemented at the UDP layer: sequence numbers, checksums (similar to TCP but more flexible)</td></tr>
+    <tr><td>Security</td><td>Built-in TLS, completed during connection setup, <strong>reduced from 7 RTTs to 2</strong></td></tr>
+    <tr><td>HOL blocking</td><td>Each stream is independent; a packet loss in one stream doesn't block others</td></tr>
+    <tr><td>Compatibility</td><td>Some ISPs rate-limit UDP → automatic fallback to TCP</td></tr>
+    <tr><td>Standardization</td><td>RFC 8999–9002 (2021)</td></tr>
+  </table>
+
+  <h3>QUIC Development History (From Transcript)</h3>
+  <ul>
+    <li>Google started developing around 2011–2012</li>
+    <li><strong>By 2013–2014 it was quietly deployed in Chrome and Google's servers</strong> — global users became unwitting test subjects</li>
+    <li>Researchers captured it in Wireshark and asked "what protocol is this?"</li>
+    <li>IETF was unhappy about this development approach but eventually accepted and pushed standardization forward</li>
+    <li>About 1/3 of HTTP traffic now runs on QUIC</li>
+  </ul>
+
+  <h3>Who Uses HTTP/3</h3>
+  <ul>
+    <li>Browsers: Chrome, Edge (Chromium), Firefox, Safari, Opera</li>
+    <li>Mobile: Android native library, iOS</li>
+    <li>Servers: NGINX, LiteSpeed, MS IIS ✓ — <strong>Apache: not yet</strong></li>
+    <li>Commercial: Google, Facebook, Instagram, Uber</li>
+    <li>Detection tool: <code>http3check.net</code></li>
+  </ul>
+</div>
+
+<!-- S19 -->
+<div class="section" id="s19">
+  <div class="section-header">
+    <h2>19. HTTP Abused as a "Transport Protocol"</h2>
+    <span class="slide-ref">Slide 33</span>
+  </div>
+
+  <ul>
+    <li>HTTP now carries real-time audio/video (scenarios that should use RTP)</li>
+    <li>SOAP, REST, AJAX — machine-to-machine RPC (remote procedure calls) running over HTTP</li>
+    <li>Used for firewall traversal: everything is blocked by the firewall, but the CEO needs internet access → ports 80/443 can't be blocked → everyone stuffs their traffic into HTTP</li>
+    <li>One reason Chrome has grown so large: HTTP carries more and more functionality that doesn't belong to it</li>
+  </ul>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">Lecture Commentary</div>
+    Using HTTP to bypass firewalls is "a bit unfair, but that's the reality" — not the optimal solution, but the universal one.
+  </div>
+</div>
+
+<!-- ==================== PART 2 ==================== -->
+<div class="part">Part 2 — Real-Time Communication (T5c)</div>
+
+<!-- R1 -->
+<div class="section" id="r1">
+  <div class="section-header">
+    <h2>1. Challenges of Real-Time Traffic</h2>
+    <span class="slide-ref">Slides 3–4</span>
+  </div>
+
+  <h3>Applications That Need "Real-Time"</h3>
+  <ul>
+    <li>Audio/video: phone calls, video conferencing (bidirectional interactive)</li>
+    <li>Remote surgery / telemedicine</li>
+    <li>Robot control, industrial control (valves, signals, railway switches)</li>
+    <li>VR/AR: phone moves fast; overlay must align in real-time; high latency causes misalignment</li>
+  </ul>
+
+  <div class="callout callout-exam">
+    <div class="callout-label">Core Trade-off — Runs Throughout This Topic</div>
+    <strong>Timeliness (low latency)</strong> vs <strong>Reliability (no loss)</strong> — you cannot have both. Reliability requires retransmission; retransmission takes time. You must choose a balance point for your application.
+  </div>
+
+  <h3>Complexity of Real-Time Communication</h3>
+  <p>A video conference with N sites has <strong>O(N²)</strong> complexity — every pair of sites needs to maintain connections and synchronization.</p>
+
+  <h3>Extreme Cases from the Transcript</h3>
+  <ul>
+    <li>Remote music ensemble: stage in Europe + cellist in Argentina + dancer in Thailand, performing live together. The musicians' brains adapted to the latency and played slightly ahead of the beat</li>
+    <li>Hawaiian doctor performing surgery in Thailand: sends "scalpel forward," then "stop" — if the "stop" message is lost, the consequences are catastrophic</li>
+  </ul>
+</div>
+
+<!-- R2 -->
+<div class="section" id="r2">
+  <div class="section-header">
+    <h2>2. Real-Time Requirements &amp; Application Differences</h2>
+    <span class="slide-ref">Slide 5</span>
+  </div>
+
+  <table>
+    <tr><th>Application Type</th><th>Direction</th><th>Recommended Protocol</th><th>Latency Tolerance</th></tr>
+    <tr><td>Video streaming (YouTube)</td><td>Unidirectional</td><td>TCP / HTTP</td><td>Several seconds of buffering acceptable</td></tr>
+    <tr><td>Video conferencing (Zoom)</td><td>Bidirectional interactive</td><td>UDP</td><td>Very low; ideally under 150ms</td></tr>
+    <tr><td>Robot control</td><td>Bidirectional</td><td>UDP (or dedicated network)</td><td>Very low, and high reliability also required</td></tr>
+  </table>
+
+  <h3>Human Perception Characteristics (Transcript)</h3>
+  <ul>
+    <li>Video: can tolerate 90% packet loss; the brain compensates for blur/freeze</li>
+    <li>Audio: 10% loss makes it essentially unusable</li>
+    <li>Audio-video lip sync: if audio and video delays are inconsistent, that's worse than simple latency</li>
+    <li>International satellite phone example: ~2 second round trip between Australia and Europe; conversation becomes "taking turns monologuing" rather than an actual dialogue</li>
+  </ul>
+</div>
+
+<!-- R3 -->
+<div class="section" id="r3">
+  <div class="section-header">
+    <h2>3. Components of Network Delay</h2>
+    <span class="slide-ref">Slides 6–9</span>
+  </div>
+
+  <div class="callout callout-key">
+    <div class="callout-label">The Internet Is Best-Effort</div>
+    The internet guarantees nothing unless you have a dedicated circuit. Routers, paths, bandwidth — none of it belongs to you; you cannot control it.
+  </div>
+
+  <h3>Components of Delay</h3>
+  <table>
+    <tr><th>Component</th><th>Description</th><th>Controllable?</th></tr>
+    <tr><td>Propagation delay (latency)</td><td>Speed-of-light limit; pure physics</td><td>No — cannot be overcome</td></tr>
+    <tr><td>Queuing delay</td><td>Waiting in router queues</td><td>No (you don't own the routers)</td></tr>
+    <tr><td>Jitter (PDV)</td><td>Random variation in delay</td><td>Can be mitigated at the receiver with a buffer</td></tr>
+  </table>
+
+  <h3>Ideal vs Reality (Slides 8–9 Illustration)</h3>
+  <p>Ideal: all packets arrive with a constant delay (like circuit switching; delay distribution is a single spike)</p>
+  <p>Reality:</p>
+  <ul>
+    <li>Some packets took the fastest path and arrive early (left tail)</li>
+    <li>Most packets arrive near the "typical delay" (distribution peak)</li>
+    <li>Some packets were rerouted, congested, or fragmented and arrive very late (right tail)</li>
+    <li>The "typical delay" is higher than the physical minimum; the spread around this peak is jitter</li>
+  </ul>
+
+  <h3>Sender vs Receiver Timing (Slides 11–12)</h3>
+  <ul>
+    <li>Sender: packets 1, 2, 3, 4, 5 sent at evenly-spaced clock intervals</li>
+    <li>Receiver: packet 1 on time; packet 2 slightly late; packet 3 faster than 2; packet 4 very late; packet 5 normal…</li>
+    <li>Arrival order may also be shuffled: 1, 3, 2, 5, 4</li>
+    <li>The receiver must handle both reordering and delay</li>
+  </ul>
+</div>
+
+<!-- R4 -->
+<div class="section" id="r4">
+  <div class="section-header">
+    <h2>4. Jitter (Packet Delay Variation) — Measured</h2>
+    <span class="slide-ref">Slide 10</span>
+  </div>
+
+  <ul>
+    <li>Typical jitter is ~15–17ms; won't drop below 15ms (from Slide 10 UDP traffic measurement)</li>
+    <li>15ms ≈ the duration of one frame at 60fps (1/60s ≈ 16.7ms)</li>
+    <li>Occasional spikes can exceed 30ms — equivalent to 2 frames of uncertainty</li>
+    <li>Jitter itself varies over time; it's not static</li>
+  </ul>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">Why Jitter Is More Problematic Than Latency</div>
+    Fixed latency can be compensated by pre-buffering (wait long enough, then play). But jitter is random — you don't know how late the next packet will be → how large should the buffer be? This is the core design problem of real-time communication.
+  </div>
+</div>
+
+<!-- R5 -->
+<div class="section" id="r5">
+  <div class="section-header">
+    <h2>5. Receiver Buffer Mechanism</h2>
+    <span class="slide-ref">Slides 13–15</span>
+  </div>
+
+  <h3>Why Buffering Is Needed</h3>
+  <ul>
+    <li>Sender: emits audio/video samples at a fixed rate</li>
+    <li>Receiver: also needs to play them out at a fixed rate</li>
+    <li>The network introduces random delays and reordering → a buffer is needed to "smooth things out"</li>
+  </ul>
+
+  <h3>How the Buffer Works</h3>
+  <ul>
+    <li><strong>Receive Buffer</strong>: collects packets and reorders them</li>
+    <li><strong>Playout Buffer</strong>: holds them in the correct order and releases them at timed intervals</li>
+    <li>Buffer size is measured in bytes, but what it really represents is a "time window"</li>
+  </ul>
+
+  <h3>Maximum Acceptable Delay (Slide 15)</h3>
+  <p>Set a threshold: packets that haven't arrived by this deadline are treated as "lost" — no more waiting. This threshold is your Receive Buffer size (in the time dimension).</p>
+
+  <p>Example from Slide 14: packet 4 arrives at the very last moment, already past the playout buffer's time window → the application treats it as "lost" (even though it physically arrived).</p>
+</div>
+
+<!-- R6 -->
+<div class="section" id="r6">
+  <div class="section-header">
+    <h2>6. Buffer Size Trade-offs</h2>
+    <span class="slide-ref">Slide 16</span>
+  </div>
+
+  <table>
+    <tr><th></th><th>Large Buffer</th><th>Small Buffer</th></tr>
+    <tr><td>Jitter tolerance</td><td>High (can afford to wait)</td><td>Low (can't afford to wait)</td></tr>
+    <tr><td>End-to-end latency</td><td>High (wait to fill up before playing)</td><td>Low (near real-time)</td></tr>
+    <tr><td>Packet loss rate</td><td>Low (fewer packets time out)</td><td>High (more packets time out)</td></tr>
+    <tr><td>Best for</td><td>Unidirectional streaming, recorded video</td><td>Video conferencing, real-time control</td></tr>
+  </table>
+
+  <div class="callout callout-key">
+    <div class="callout-label">Design Principle</div>
+    The smaller the buffer, the better the real-time performance, but the more likely you are to "glitch." Video can tolerate occasional glitches; audio almost cannot. Each application weighs this for itself — there's no universal answer.
+  </div>
+</div>
+
+<!-- R7 -->
+<div class="section" id="r7">
+  <div class="section-header">
+    <h2>7. Loss Recovery Techniques</h2>
+    <span class="slide-ref">Slides 17 / 20</span>
+  </div>
+
+  <h3>Retransmission — Rarely Used</h3>
+  <ul>
+    <li>Detect lost packet → ask the sender to retransmit</li>
+    <li>Cost: round-trip RTT + processing time + re-queuing delay</li>
+    <li>Means the Receive Buffer must be very large (wait for the retransmitted packet)</li>
+    <li>Sender must also buffer already-sent data (in case retransmission is needed)</li>
+    <li>Exception: in <strong>IP Multicast</strong>, you can request retransmission from "the nearest neighbor" (see next section)</li>
+  </ul>
+
+  <h3>Forward Error Correction (FEC)</h3>
+  <ul>
+    <li>Sender embeds redundant information in the data</li>
+    <li>Receiver can reconstruct lost/corrupted packets without retransmission</li>
+    <li>Useful for: control signal reliability; scenarios where retransmission cost is too high (e.g. deep-space probes)</li>
+    <li>Also called "Adaptive FEC" — dynamically adjusts redundancy based on network conditions</li>
+  </ul>
+
+  <h3>Codec Adaptation</h3>
+  <ul>
+    <li>High packet loss rate → reduce bitrate/resolution, send less data</li>
+    <li>Requires a back-channel (receiver informs sender of network conditions)</li>
+    <li>YouTube automatically dropping from 1080p to 360p is this mechanism</li>
+  </ul>
+
+  <h3>Parallel Transmission</h3>
+  <ul>
+    <li>When sending frame N, also include a compressed low-quality copy of frame N-1</li>
+    <li>If frame N-1 is lost, frame N contains a backup</li>
+    <li>Cost: more bandwidth; Benefit: low-quality fill-in when there is loss</li>
+    <li>Also applies to control signal reliability (Slide 20 diagram: 4 3 2 1 sent in parallel)</li>
+  </ul>
+
+  <h3>Error Concealment (Interpolation)</h3>
+  <ul>
+    <li>Interpolate between frames; approximate a lost frame using neighboring frames</li>
+    <li>Similar in concept to progressive image compression</li>
+  </ul>
+</div>
+
+<!-- R8 -->
+<div class="section" id="r8">
+  <div class="section-header">
+    <h2>8. IP Multicast</h2>
+    <span class="slide-ref">Slide 18</span>
+  </div>
+
+  <ul>
+    <li>Sender sends one copy; the network automatically replicates it at branch points to multiple receivers</li>
+    <li>All receivers can also be senders (Everyone is a listener AND a sender)</li>
+    <li>Loss recovery: receivers don't need to request retransmission from the original sender; they can ask <strong>the nearest neighbor</strong> (whoever has the packet sends it)</li>
+    <li>Significantly reduces retransmission latency (neighbor is closer than the source)</li>
+    <li>Used for large-scale distribution (corporate intranet video broadcasts, etc.)</li>
+  </ul>
+</div>
+
+<!-- R9 -->
+<div class="section" id="r9">
+  <div class="section-header">
+    <h2>9. Elastic Buffer / Adaptive Playout</h2>
+    <span class="slide-ref">Slide 19</span>
+  </div>
+
+  <h3>How It Works</h3>
+  <ul>
+    <li>Monitor packet loss rate: normal 1/100 → suddenly 4/100 → network has degraded</li>
+    <li>Expand the buffer: wait a bit longer; give packets more time to arrive</li>
+    <li><strong>Slow down playout</strong>: user sees the video slow down slightly</li>
+    <li>When network recovers: shrink the buffer; <strong>speed up playout to catch up</strong></li>
+  </ul>
+
+  <div class="callout callout-tip">
+    <div class="callout-label">What's Really Happening in Zoom/Teams Stutters</div>
+    When you see someone suddenly in "slow motion" and then "speed up" to catch back up — that's the elastic buffer expanding and contracting. It slows playback when expanding and fast-forwards to catch up when shrinking; typically lasts 0.5–1 second.
+  </div>
+</div>
+
+<!-- R10 -->
+<div class="section" id="r10">
+  <div class="section-header">
+    <h2>10. RTP — Real-Time Transport Protocol</h2>
+    <span class="slide-ref">Slide 21</span>
+  </div>
+
+  <h3>Basic Role</h3>
+  <ul>
+    <li>Runs on top of UDP (can also run over TCP)</li>
+    <li>Supports any media encoding format</li>
+    <li>Supports multiplexing multiple media streams (e.g. audio stream + video stream in the same conference)</li>
+  </ul>
+
+  <h3>Key Header Fields</h3>
+  <table>
+    <tr><th>Field</th><th>Purpose</th></tr>
+    <tr><td>Sequence Number</td><td>Packet sequence number; used for detecting loss and reordering</td></tr>
+    <tr><td>Timestamp</td><td>Media timestamp; used for synchronizing playback (not a network timestamp)</td></tr>
+    <tr><td>SSRC (Synchronisation Source Identifier)</td><td>Identifies the stream source; used for lip-sync (aligning audio and video)</td></tr>
+    <tr><td>CSRC (Contributing Source Identifier)</td><td>Identifies the original sources in a mixed stream</td></tr>
+    <tr><td>Payload Type</td><td>Media encoding type (for selecting a decoder)</td></tr>
+    <tr><td>M (Marker bit)</td><td>Marks important events (e.g. frame boundaries)</td></tr>
+  </table>
+
+  <h3>RTP Capabilities</h3>
+  <ul>
+    <li>Multiplex multiple audio/video streams; select language/subtitles</li>
+    <li>Lip synchronization</li>
+    <li>Can carry non-standard media like whiteboards and shared documents</li>
+    <li>Supports real-time translated subtitle overlays (mentioned in Transcript)</li>
+  </ul>
+</div>
+
+<!-- R11 -->
+<div class="section" id="r11">
+  <div class="section-header">
+    <h2>11. RTCP — RTP Control Protocol</h2>
+    <span class="slide-ref">Slide 22</span>
+  </div>
+
+  <h3>Design Purpose</h3>
+  <p>The sender needs to know: how is my stream's quality? Should I adjust bitrate, FEC strength, or retransmission strategy?</p>
+
+  <h3>Core Mechanism</h3>
+  <ul>
+    <li>Uses <strong>odd-numbered ports</strong> (RTP uses even ports); out-of-band control that doesn't interfere with the media stream</li>
+    <li>Must limit RTCP bandwidth usage (can't let control traffic eat into media bandwidth)</li>
+  </ul>
+
+  <h3>Main Report Types</h3>
+  <table>
+    <tr><th>Type</th><th>Contents</th></tr>
+    <tr><td>Sender Report</td><td>Sender statistics: how many packets/bytes sent, NTP timestamp</td></tr>
+    <tr><td>Receiver Report</td><td>Receiver statistics: packet loss rate, highest sequence number, jitter, RTT</td></tr>
+    <tr><td>Source Description</td><td>Identifies participant information</td></tr>
+    <tr><td>BYE</td><td>Leaving-session notification</td></tr>
+    <tr><td>Heartbeat</td><td>I'm still alive; the stream is still flowing</td></tr>
+    <tr><td>Retransmission Request</td><td>Request retransmission of a specific packet</td></tr>
+  </table>
+
+  <div class="callout callout-key">
+    <div class="callout-label">Value of RTCP</div>
+    Sender receives "0% packet loss" → increase video quality; receives "10% packet loss" → reduce bitrate or strengthen FEC. This is the core feedback loop for real-time adaptation.
+  </div>
+</div>
+
+<!-- R12 -->
+<div class="section" id="r12">
+  <div class="section-header">
+    <h2>12. Complete Video Conferencing Protocol Stack</h2>
+    <span class="slide-ref">Slide 23</span>
+  </div>
+
+  <table>
+    <tr><th>Protocol</th><th>Responsibility</th></tr>
+    <tr><td>SIP</td><td>Establishing/terminating calls ("making/hanging up a call")</td></tr>
+    <tr><td>SDP</td><td>Negotiating media parameters (codecs, resolution, bandwidth caps)</td></tr>
+    <tr><td>RTP</td><td>Transporting the actual audio/video data</td></tr>
+    <tr><td>RTCP</td><td>Transporting control/statistics; drives adaptation</td></tr>
+    <tr><td>Receiver buffer</td><td>Handles jitter and reordering; drives elastic playout</td></tr>
+  </table>
+</div>
+
+<!-- R13 -->
+<div class="section" id="r13">
+  <div class="section-header">
+    <h2>13. SIP — Session Initiation Protocol</h2>
+    <span class="slide-ref">Slides 24–25</span>
+  </div>
+
+  <h3>Role</h3>
+  <ul>
+    <li>IETF open standard (RFC 3261+); not concerned with the actual media transport mechanism</li>
+    <li>Primarily used for VoIP / enterprise phone systems (widely used after Australia's NBN rollout)</li>
+    <li>Components: Proxy, Registrar, Redirect Server, Border Controller, Gateway (for PSTN access)</li>
+  </ul>
+
+  <h3>Protocol Appearance</h3>
+  <ul>
+    <li>Looks like HTTP: commands, responses, status codes (but no XYZ codes)</li>
+    <li>Runs over both TCP and UDP</li>
+    <li>Signaling flow: INVITE → 180 Ringing → 200 OK → ACK → [RTP media] → BYE → 200 OK</li>
+  </ul>
+
+  <h3>SIP vs H.323</h3>
+  <table>
+    <tr><th></th><th>SIP</th><th>H.323 (ITU)</th></tr>
+    <tr><td>Origin</td><td>IETF / academic</td><td>Telecom standards body (telecoms ministry ecosystem)</td></tr>
+    <tr><td>Specification</td><td>Open and free</td><td>Inches-thick spec; costs thousands of dollars to buy</td></tr>
+    <tr><td>Adoption</td><td>Widespread (VoIP)</td><td>Only survives in some enterprise video conferencing systems</td></tr>
+  </table>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">SIP's Awkward Position</div>
+    SIP is an excellent open standard, but Zoom, WhatsApp, Telegram, FaceTime, Teams, Messenger — <strong>none of them use SIP</strong>; all use proprietary protocols. Commercial interests keep each platform locked in its own ecosystem. Skype has also disappeared by now.
+  </div>
+</div>
+
+<!-- R14 -->
+<div class="section" id="r14">
+  <div class="section-header">
+    <h2>14. Unicast Streaming &amp; RTSP</h2>
+    <span class="slide-ref">Slides 26–27</span>
+  </div>
+
+  <h3>Unicast Streaming vs Video Conferencing</h3>
+  <ul>
+    <li>Unicast streaming: doesn't care about latency (a few seconds of buffer is fine); emphasis on smooth and reliable delivery</li>
+    <li>Receiver "pulls" content (rather than sender "pushing")</li>
+    <li>Can use TCP: reliable transport; sliding window manages playout buffer</li>
+    <li>Progress bar: red = played, grey = pre-fetched, white/empty = not yet downloaded</li>
+    <li>Seeking into the grey area: plays immediately; seeking into white: pause and wait for download</li>
+  </ul>
+
+  <h3>RTSP (Real Time Streaming Protocol)</h3>
+  <ul>
+    <li>Establishes streaming sessions and negotiates transport parameters (can use RTP/RTCP or HTTP, etc.)</li>
+    <li>Commands: <code>OPTIONS</code>, <code>DESCRIBE</code>, <code>SETUP</code>, <code>PLAY</code> (with time range), <code>PAUSE</code>…</li>
+    <li>Looks like HTTP and SIP</li>
+    <li>YouTube/Netflix don't use RTSP; they use proprietary solutions</li>
+    <li><strong>Most common real-world use: security cameras</strong> — most IP cameras provide an RTSP interface</li>
+  </ul>
+
+  <div class="callout callout-tip">
+    <div class="callout-label">Practical Tip (Transcript)</div>
+    RTSP streams from security cameras can be accessed and recorded directly via command-line clients (e.g. ffmpeg, VLC); you can also seek between frames.
+  </div>
+</div>
+
+<!-- R15 -->
+<div class="section" id="r15">
+  <div class="section-header">
+    <h2>15. DASH / HTTP Streaming</h2>
+    <span class="slide-ref">Slide 28</span>
+  </div>
+
+  <h3>DASH (Dynamic Adaptive Streaming over HTTP)</h3>
+  <ul>
+    <li>Implements adaptive streaming over HTTP</li>
+    <li>Uses <code>HEAD</code> requests to discover media info and available formats</li>
+    <li>Uses <code>GET</code> + <code>Range</code> to download video segments and fill the playout buffer</li>
+    <li>Server can perform adaptive encoding on request (different bitrates/resolutions)</li>
+    <li>HTML5 built-in <code>&lt;video&gt;</code> tag (the killer of Flash)</li>
+  </ul>
+
+  <h3>Why Use HTTP for Streaming</h3>
+  <ul>
+    <li>Firewall traversal: HTTP ports are almost never blocked</li>
+    <li><strong>Stateless server</strong> (each GET is independent) → much easier to scale</li>
+    <li>Inherits HTTP's proxy, caching, and CDN infrastructure naturally</li>
+  </ul>
+
+  <h3>YouTube Traffic Characteristics (Transcript)</h3>
+  <p>Capturing YouTube traffic in Wireshark shows a <strong>sawtooth pattern</strong>: the client periodically downloads several MB to fill the buffer, then pauses while playback consumes it, then downloads again. This is DASH's rhythm.</p>
+
+  <div class="callout callout-warn">
+    <div class="callout-label">"Sigh, Let's Just Use HTTP" (Slide 28 Title)</div>
+    RTSP/RTP are more purpose-built streaming protocols, but YouTube and Netflix chose HTTP/DASH for blunt reasons: firewalls, existing infrastructure, and simpler development. Professional doesn't always win — pragmatic does.
+  </div>
+</div>
+
+<!-- R16 -->
+<div class="section" id="r16">
+  <div class="section-header">
+    <h2>16. Summary</h2>
+    <span class="slide-ref">Slide 29</span>
+  </div>
+
+  <div class="callout callout-exam">
+    <div class="callout-label">Final Conclusion — Lecture's Own Words</div>
+    "Achieving perfect, low-latency real-time transmission over a best-effort network is genuinely hard. All the intelligence lives at the endpoints; the network itself guarantees nothing."
+  </div>
+
+  <ul>
+    <li>All optimizations for real-time communication (elastic buffer, FEC, codec adaptation) are implemented at the <strong>receiver/sender endpoints</strong></li>
+    <li>The network just does its best to forward packets — no QoS guaranteed (unless you have a dedicated circuit: MPLS, RSVP, QoS)</li>
+    <li>Audio/video "sort of works" — under your network conditions</li>
+    <li>Robots/industrial control using real-time traffic: the internet may not be the best choice, but sometimes it's the only choice</li>
+    <li>The human brain is highly adaptive (musicians adapted to the latency); robots cannot self-adapt</li>
+  </ul>
+</div>
+
+<!-- Footer -->
+<div style="text-align:center; color:#9ca3af; font-family:sans-serif; font-size:0.8rem; margin-top:2rem; padding-top:1rem; border-top:1px solid #e5e7eb;">
+  COMP3310 Week 6 · T5b (HTTP/Web) + T5c (Real-Time Communication) · Based on Slides + Transcript
+</div>
+
+</div>
+</body>
+</html>
