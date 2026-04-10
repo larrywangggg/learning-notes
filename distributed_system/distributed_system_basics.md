@@ -197,18 +197,139 @@ Kafka、Cassandra 的核心卖点之一是对 horizontal scaling 友好。
 
 高吞吐、可持久化的消息系统，用于系统间**解耦**和**异步处理**。
 
-**核心概念**：
-- **Producer**：向 topic 写消息的服务
-- **Consumer**：从 topic 读消息的服务
-- **Topic**：消息分类，类似"频道"
-- **Partition**：topic 的物理分片，同一 topic 可以有多个 partition 并行处理，提高吞吐
-- **Offset**：consumer 在 partition 中读取到的位置游标，可以 replay
+和传统消息队列（如 RabbitMQ）的核心区别：消息消费后**不删除**，默认保留 7 天，任何 consumer 可以随时回放历史消息。
 
-**为什么 Kafka 高吞吐？** 消息顺序写磁盘（比随机写快很多），partition 并行，consumer 可批量拉取。
+---
 
-**典型场景**：
-- 订单系统写数据库后发 Kafka 事件，库存服务、通知服务分别消费 → 解耦
-- 用户行为日志实时收集 → 数据分析 pipeline
+#### Producer / Consumer / Topic
+
+最简单的理解：Kafka 像一个**广播电台**。
+
+- **Topic** 是"频道"（比如"订单事件频道"、"用户行为频道"）
+- **Producer** 是往频道里播内容的人（发消息）
+- **Consumer** 是收听频道的人（读消息）
+
+**实际场景**：电商下单流程
+
+用户点击"下单"后，订单服务不需要自己去调用库存服务、通知服务、积分服务——只需要往 Kafka 的 `order-created` topic 里写一条消息。其他服务各自订阅这个 topic，独立处理：
+
+```
+用户下单
+  → 订单服务写数据库，同时发消息到 Kafka topic: order-created
+       ├── 库存服务（消费）→ 扣减库存
+       ├── 通知服务（消费）→ 发短信/邮件给用户
+       ├── 积分服务（消费）→ 给用户加积分
+       └── 数据分析服务（消费）→ 记录销售数据
+```
+
+好处：订单服务不需要知道下游有哪些服务，下游加新服务不需要改订单服务代码。如果通知服务临时挂了，消息还在 Kafka 里，恢复后继续消费，不丢消息。
+
+---
+
+#### Partition（分区）
+
+一个 Topic 可以有多个 Partition，每个 Partition 是一段独立的有序日志。
+
+**为什么要分 Partition？** 单个 Partition 只能被一个 Consumer 处理，Partition 越多，并行处理能力越强。
+
+**实际场景**：外卖平台的订单消息
+
+假设 `order-created` topic 有 3 个 Partition：
+```
+Partition 0: [北京的订单]
+Partition 1: [上海的订单]
+Partition 2: [广州的订单]
+```
+
+3 个 Consumer 实例同时工作，每人处理一个城市的订单，互不干扰，吞吐量是单 Partition 的 3 倍。
+
+**关键限制**：顺序只在单个 Partition 内保证。如果你需要同一个用户的操作按顺序处理，必须保证同一用户的消息进同一个 Partition（用 user_id 作为 key）：
+
+```
+# 同一个 user_id 的消息，经过 hash 后总是进同一个 Partition
+producer.send("user-events", key="user_42", value="加入购物车")
+producer.send("user-events", key="user_42", value="下单")
+producer.send("user-events", key="user_42", value="支付")
+# 以上三条消息保证顺序，因为同一个 key → 同一个 Partition
+```
+
+---
+
+#### Offset（偏移量）
+
+每条消息在 Partition 内都有一个唯一递增编号（从 0 开始），这就是 offset。Consumer 自己记录"我消费到哪了"。
+
+**实际场景**：消费失败后重新处理
+
+假设你的数据处理服务在处理第 500 条消息时崩溃了：
+
+```
+Partition 0: [0][1][2]...[498][499][500 ← 崩溃点][501][502]...
+                                          ↑
+                              consumer 记录的 offset = 499（已提交）
+```
+
+服务重启后，从 offset 500 开始重新消费，不会从头来，也不会跳过未处理的消息。
+
+**更强大的用法（Replay）**：新上线一个推荐系统，需要分析过去 3 天的用户行为数据。不需要从数据库里捞，直接把 `user-behavior` topic 的 offset 重置到 3 天前，重新消费即可。
+
+---
+
+#### Consumer Group（消费者组）
+
+多个 Consumer 实例组成一个 Group，Kafka 自动把 Partition 分配给 Group 内的各个 Consumer。
+
+**实际场景**：扩容处理能力
+
+双十一活动，订单量是平时的 10 倍，单个 Consumer 处理不过来：
+
+```
+# 平时：1 个 Consumer 处理 3 个 Partition
+Consumer A → Partition 0, 1, 2
+
+# 双十一扩容到 3 个 Consumer（同一个 Consumer Group）
+Consumer A → Partition 0
+Consumer B → Partition 1
+Consumer C → Partition 2
+# 处理速度提升 3 倍
+```
+
+**同一份数据，多个业务独立消费**：
+
+`order-created` 这一份消息，库存服务和通知服务属于不同的 Consumer Group，各自维护自己的 offset，互不影响：
+
+```
+order-created topic
+  ← Consumer Group: inventory-service（库存服务，消费到 offset 1000）
+  ← Consumer Group: notification-service（通知服务，消费到 offset 980，稍慢一点）
+  ← Consumer Group: analytics-service（分析服务，消费到 offset 500，批量处理）
+```
+
+---
+
+#### 为什么 Kafka 高吞吐？
+
+| 机制 | 类比 | 效果 |
+|------|------|------|
+| 顺序写磁盘 | 像流水线记账，不翻页查找 | 比随机写快 100 倍以上 |
+| 批量发送/消费 | 像快递公司攒一车再发，而不是一件一件送 | 大幅减少网络请求次数 |
+| Zero-copy | 数据不经过应用内存，直接磁盘→网卡 | 减少 CPU 拷贝开销 |
+| Partition 并行 | 多条流水线同时工作 | 吞吐线性扩展 |
+
+**实际场景**：LinkedIn（Kafka 的发明者）用 Kafka 每天处理超过 **7 万亿条消息**。Netflix 用 Kafka 追踪用户在所有设备上的实时行为用于推荐系统。
+
+---
+
+#### 典型使用场景总结
+
+| 场景 | 具体例子 |
+|------|------|
+| **系统解耦** | 订单服务不直接调库存/通知，通过 Kafka 异步通知 |
+| **流量削峰** | 秒杀活动瞬间涌入 10 万请求，先全写入 Kafka，后端按能力逐步消费，不被压垮 |
+| **日志收集** | 100 台服务器的日志统一写入 Kafka，再流向 OpenSearch 做检索 |
+| **数据同步** | 数据库变更（通过 CDC）写入 Kafka，实时同步到搜索引擎、数仓 |
+| **事件溯源** | 用户操作全部记录为事件，需要时可以从任意时间点回放，重建系统状态 |
+| **实时计算** | 用户点击行为实时写入 Kafka，Flink 消费后实时计算 DAU、转化率等指标 |
 
 ---
 
@@ -216,15 +337,129 @@ Kafka、Cassandra 的核心卖点之一是对 horizontal scaling 友好。
 
 面向大规模写入和水平扩展设计，牺牲强一致性换高可用。
 
-**特点**：
-- 无 master 节点，所有节点对等（peer-to-peer）
-- 通过 consistent hashing 决定数据存放在哪个节点
-- Replication factor 可配置（通常 3），数据写入多个副本
-- 写入优先：写性能极强（追加 WAL，不做随机写）
+核心设计哲学：**写入永远不失败**。Cassandra 宁愿返回稍旧的数据，也不愿因为某个节点挂掉而拒绝服务。
 
-**适合场景**：时序数据、IoT 传感器数据、用户行为日志、需要全球多数据中心写入的场景。
+---
 
-**不适合场景**：复杂 join、多表事务、强一致性业务（如金融交易）。
+#### 无 Master 节点（Peer-to-Peer）
+
+传统数据库（如 PostgreSQL）有一个 Primary 节点负责所有写入，Primary 挂了就需要 failover，有一段时间不可用。
+
+Cassandra 完全不同：**所有节点地位平等，任何节点都可以接受读写请求**。
+
+**实际场景**：Instagram 的用户动态
+
+Instagram 有超过 10 亿用户，每秒产生海量的"点赞/评论/关注"事件。如果用传统主从数据库，Primary 节点会成为瓶颈。Cassandra 的所有节点都能写入，加机器就能线性扩展写入能力，Instagram 正是因此选择了 Cassandra 作为其 feeds 存储。
+
+```
+# 传统主从：所有写入都压在 Primary 上
+Client → Primary → replica1
+                 → replica2
+
+# Cassandra：任意节点都能写，写入压力分散
+Client → Node A ─┐
+Client → Node B  ├─ 互相同步
+Client → Node C ─┘
+```
+
+---
+
+#### Consistent Hashing（一致性哈希）
+
+Cassandra 用哈希函数决定一条数据存在哪个节点上，不需要一张"路由表"来记录哪条数据在哪里。
+
+**实际场景**：存储物联网传感器数据
+
+一个工厂有 10 万个传感器，每个传感器每秒上报温度数据。Cassandra 用 `sensor_id` 做哈希，同一个传感器的所有数据自动落到同一组节点上，查询时直接定位，不需要扫全表：
+
+```
+hash("sensor_001") → 落到 Node A、B、C（replication factor=3）
+hash("sensor_002") → 落到 Node B、C、D
+hash("sensor_003") → 落到 Node C、D、A
+```
+
+新增节点时，只需要迁移部分数据，不需要重新分配所有数据（这是"一致性哈希"相比普通哈希的优势）。
+
+---
+
+#### Replication Factor & 写入流程
+
+`replication_factor = 3` 表示每条数据写入 3 个不同节点。
+
+**实际场景**：跨数据中心容灾
+
+Netflix 用 Cassandra 存储用户观看历史，在多个 AWS Region 都有副本。即使整个 us-east-1 区域出问题，us-west-2 和 eu-west-1 的副本仍可提供服务，用户不会看到报错：
+
+```
+用户写入"观看了《纸牌屋》第 3 集"
+  → 同时写入 us-east-1（Node A）
+  → 同时写入 us-west-2（Node B）
+  → 同时写入 eu-west-1（Node C）
+任意一个区域挂掉，其他两个继续服务
+```
+
+**Consistency Level（一致性级别）**可以按需调整，写入时可以选择等待多少个副本确认：
+
+| Consistency Level | 含义 | 适用场景 |
+|---|---|---|
+| `ONE` | 1 个节点写成功即返回 | 日志、监控数据，允许少量丢失 |
+| `QUORUM` | 多数节点（如 3 中的 2）写成功才返回 | 大多数业务场景，平衡性能与可靠性 |
+| `ALL` | 所有副本都写成功才返回 | 极少使用，性能差，一个节点挂就失败 |
+
+---
+
+#### 写入为什么快？
+
+Cassandra 写入不直接改磁盘上的数据文件，而是：
+1. 写入内存中的 **Memtable**（极快）
+2. 同时追加写 **Commit Log**（顺序写，不随机 IO）
+3. Memtable 满了后，批量刷到磁盘的 **SSTable**（不可变文件）
+
+**实际场景**：Uber 的行程数据
+
+Uber 每次行程会产生大量 GPS 位置更新（每隔几秒一条）。这类数据写多读少，对写入延迟敏感。Cassandra 的写入路径几乎全在内存操作，P99 写入延迟可以控制在个位数毫秒。
+
+对比 PostgreSQL：每次写入需要找到数据在磁盘上的位置并原地修改（随机 IO），写入量大时性能显著下降。
+
+---
+
+#### 数据模型：按查询设计表（Query-Driven Design）
+
+Cassandra 没有 JOIN，**表结构必须按照你的查询方式来设计**，这是和关系型数据库最大的思维转变。
+
+**实际场景**：查询某用户的消息记录
+
+在 PostgreSQL 里，你可能设计一张 `messages` 表，用 `WHERE user_id = ? ORDER BY created_at DESC` 查询。
+
+在 Cassandra 里，表结构直接为这个查询服务：
+
+```sql
+CREATE TABLE messages_by_user (
+    user_id   UUID,
+    sent_at   TIMESTAMP,
+    message   TEXT,
+    PRIMARY KEY (user_id, sent_at)  -- user_id 是分区键，sent_at 是排序键
+) WITH CLUSTERING ORDER BY (sent_at DESC);
+
+-- 查询直接命中，不需要全表扫描
+SELECT * FROM messages_by_user WHERE user_id = ? LIMIT 20;
+```
+
+同一个用户的所有消息存在同一个 Partition，按时间排好序，查询极快。
+
+---
+
+#### 适合 vs 不适合的场景
+
+| 适合 | 不适合 |
+|------|------|
+| 时序数据（传感器、日志、监控指标） | 需要复杂 JOIN 的业务查询 |
+| 用户行为/事件记录（点赞、浏览历史） | 多表事务（转账、库存扣减） |
+| 大规模写入（每秒几十万次写） | 需要强一致性的场景（金融账务） |
+| 全球多数据中心部署 | 数据模型经常变化、需要灵活 ad-hoc 查询 |
+| 按已知 key 查单条或一批数据 | 需要聚合计算（SUM/GROUP BY 大量数据）|
+
+**一句话判断**：如果你的系统**写多读少、数据量极大、需要高可用、查询模式固定**，考虑 Cassandra。如果你需要**事务、复杂查询、数据关系复杂**，用 PostgreSQL。
 
 ---
 
