@@ -149,14 +149,3 @@ mosquitto_sub -h localhost -t '$SYS/#' -v   # 注意单引号，$ 是 shell 特�
 ```
 看 `$SYS/broker/load/...` 系列最能反映当前 server load。
 
----
-
-## 实验完成清单
-
-- [x] pub/sub + broker 中转模型（broker 日志 + 抓包「收一次发一次」）
-- [x] 消息即时流、不存历史（msg1 收不到）
-- [x] retain：验证 / 覆盖 / 空消息清除
-- [x] 通配符 `+` `#` + (c) 层级不对称的坑
-- [x] QoS 0/1/2 三级握手抓包
-- [ ] 订阅 `$SYS/#` 观察 broker 负载（lab 图3 第4点，建议补）
-- [ ] MQTT-Explorer GUI 里浏览主题树 / $SYS 历史曲线（lab 图2，建议补）
