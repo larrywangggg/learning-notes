@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>COMP3310 Cheatsheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --t12:#0d7d6e; --t3:#1d4ed8; --t4:#7c3aed; --t5:#c2410c;
+    --t6:#be123c; --t7a:#0369a1; --t7b:#4d7c0f; --t7c:#9d174d;
+    --ink:#1a1a1a; --mut:#555; --line:#cfcfcf; --hl:#fff3cd; --trap:#fde2e4; --anchor:#c81e3a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'IBM Plex Sans',sans-serif;color:var(--ink);
+    font-size:7.8pt;line-height:1.17;-webkit-font-smoothing:antialiased;
+    overflow-wrap:anywhere;word-break:break-word;
+  }
+  .page{
+    width:210mm;height:297mm;padding:6mm 6mm 4mm;
+    column-count:3;column-gap:4mm;column-fill:balance;overflow:hidden;
+  }
+  .blk{break-inside:avoid;margin:0 0 1.9mm;}
+  h1{font-family:'IBM Plex Mono',monospace;font-size:11pt;margin:0;
+     letter-spacing:-.3px;column-span:all;border-bottom:2px solid var(--ink);
+     padding-bottom:1mm;margin-bottom:2.5mm;display:flex;justify-content:space-between;align-items:baseline;}
+  h1 .sub{font-family:'IBM Plex Sans';font-size:6.6pt;font-weight:400;color:var(--mut);}
+  .sec{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:7.7pt;
+       color:#fff;padding:.5mm 1.6mm;border-radius:2px;display:block;margin-bottom:.6mm;
+       letter-spacing:-.2px;}
+  .sec small{font-weight:500;opacity:.92;font-size:7.4pt;}
+  .c12 .sec{background:var(--t12)} .c12{border-left:2px solid var(--t12);padding-left:1.4mm}
+  .c3 .sec{background:var(--t3)} .c3{border-left:2px solid var(--t3);padding-left:1.4mm}
+  .c4 .sec{background:var(--t4)} .c4{border-left:2px solid var(--t4);padding-left:1.4mm}
+  .c5 .sec{background:var(--t5)} .c5{border-left:2px solid var(--t5);padding-left:1.4mm}
+  .c6 .sec{background:var(--t6)} .c6{border-left:2px solid var(--t6);padding-left:1.4mm}
+  .c7a .sec{background:var(--t7a)} .c7a{border-left:2px solid var(--t7a);padding-left:1.4mm}
+  .c7b .sec{background:var(--t7b)} .c7b{border-left:2px solid var(--t7b);padding-left:1.4mm}
+  .c7c .sec{background:var(--t7c)} .c7c{border-left:2px solid var(--t7c);padding-left:1.4mm}
+  table{border-collapse:collapse;width:100%;margin:.5mm 0;font-size:inherit;}
+  td,th{border:.4px solid var(--line);padding:.42mm .9mm;vertical-align:top;text-align:left;overflow-wrap:anywhere;font-size:inherit;}
+  th{background:#f0f0f0;font-weight:600;}
+  b,strong{font-weight:600;}
+  .mono{font-family:'IBM Plex Mono',monospace;font-size:7.0pt;}
+  .hl{background:var(--hl);padding:0 .4mm;}
+  /* Chinese anchor: red bracket, scan for red = caution point */
+  .a{color:var(--anchor);font-weight:600;font-size:6.9pt;white-space:nowrap;}
+  p{margin:.4mm 0;}
+  ul{margin:.3mm 0;padding-left:3.2mm;}
+  li{margin:.2mm 0;}
+  .trapbox{break-inside:avoid;background:var(--trap);border:1px solid var(--t6);
+           border-radius:3px;padding:1.4mm;margin-bottom:1.8mm;}
+  .trapbox .sec{background:var(--t6);}
+  .trapbox ul{padding-left:3.4mm;}
+  .trapbox li{margin:.5mm 0;}
+  @media print{
+    @page{size:A4;margin:0;}
+    body{font-size:7.8pt;}
+    .page{padding:6mm 6mm 4mm;}
+  }
+</style>
+
+<!-- ============ PAGE 1 : T1–T5 ============ -->
+<div class="page">
+<h1>COMP3310 NETWORKS · CHEATSHEET 1/2<span class="sub">T1 signalling · T2 media · T3 LAN · T4 IP · T5 application</span></h1>
+
+<!-- ===== T1/T2 ===== -->
+<div class="blk c12"><span class="sec">T1 SIGNALLING <small>信号编码</small></span>
+<table>
+<tr><th>encoding</th><th>clock recovery</th><th>BW</th></tr>
+<tr><td>NRZ</td><td>none</td><td>high</td></tr>
+<tr><td>NRZI (flip on 1)</td><td>1s only</td><td>high</td></tr>
+<tr><td><b>Manchester</b> (mid-bit flip)</td><td>self-clocking <span class="a">[自同步]</span></td><td>×2</td></tr>
+</table>
+<p><b>Modulation</b>: AM=amplitude / FM=frequency / PM=phase. <b>QAM</b>=amp+phase, bits/symbol=log₂(M). 35-QAM legal but wasteful (5.1bit).</p>
+<p><b>Capacity</b>: Nyquist (noiseless) / Shannon (with noise). Narrow pulse &harr; wide spectrum <span class="a">[时窄频宽]</span>.</p>
+<p><b>dB</b>=ratio ×10log; <b>dBm</b> zero = 1mW; <b>dBi</b> = gain vs isotropic antenna.</p>
+<p><b>Circuit vs packet</b>: circuit dedicated, QoS guaranteed, but wastes idle + single-point failure <span class="a">[独占浪费]</span>; packet = stat-mux, efficient but jitter/reorder.</p>
+</div>
+
+<div class="blk c12"><span class="sec">T2 MEDIA <small>铜·光·无线</small></span>
+<p><b>Copper foes</b>: attenuation / skin effect (HF &uarr;R) / antenna effect (crosstalk). Fix = differential signalling + twisting.</p>
+<p><b>DSL</b> = DMT multi-carrier (4.3kHz sub-channels × adaptive QAM). <b class="a">[频高距短]</b> higher freq &rarr; shorter reach. ADSL ~1MHz/4km &rarr; G.fast ~100MHz/100m.</p>
+<table>
+<tr><th>fibre</th><th>core</th><th>reach</th></tr>
+<tr><td>multimode step/graded</td><td>50–62μm</td><td>~1–2km <span class="a">[模态失真]</span></td></tr>
+<tr><td><b>single-mode SMF</b></td><td>~9μm</td><td>50–100km</td></tr>
+</table>
+<p>Total internal reflection; ~0.2dB/km; <b>WDM/DWDM</b> (80–160λ ×100G = 16Tbps); EDFA every 80–100km amplifies signal+noise; OEO regen = clean but costly.</p>
+<p><b>Wireless</b>: low freq = far/thru-wall/slow; high freq = near/fast. <b class="a">[远·快·低功耗三选二]</b> P∝1/d². Multipath &rarr; fading. Regulator = ACMA.</p>
+<p><b>FTTx</b> <span class="a">[铜段越短速越快]</span>: FTTP (no copper) &gt; FTTC 10-100m &gt; FTTN 100-600m &gt; FTTB (in-building); HFC = shared coax (DOCSIS); PON = passive splitter 1:32/64.</p>
+</div>
+
+<!-- ===== T3 ===== -->
+<div class="blk c3"><span class="sec">T3 LAN / ETHERNET / WIFI</span>
+<p><b>Key concepts</b>: Administrative domain (one ruleset/owner) <span class="a">[同规则]</span>, Broadcast domain (broadcast reach) <span class="a">[广播可达]</span>. LAN philosophy = simple + fast, complexity pushed up (best-effort, CRC only).</p>
+<p class="mono"><b>Eth frame</b>: Preamble7|SFD1|Dst6|Src6|[VLAN4]|Type2|Payload46-1500|FCS4</p>
+<p>Type 0x0800=IPv4. MAC=48bit, broadcast FF×6, first 24=OUI. Jumbo=9000B.</p>
+<table>
+<tr><th>MAC proto</th><th>scheme</th><th>util</th></tr>
+<tr><td>Pure ALOHA</td><td>send anytime</td><td>~18%</td></tr>
+<tr><td>Slotted ALOHA</td><td>slot-aligned</td><td>~37%</td></tr>
+<tr><td>CSMA/CD</td><td>wired, listen-while-send</td><td>—</td></tr>
+<tr><td>CSMA/CA</td><td>wireless, avoid+ACK</td><td>—</td></tr>
+</table>
+<p><b class="hl">min frame time ≥ 2× one-way prop delay</b> <span class="a">[碰撞窗口]</span> (Eth=64B), else collision undetectable. CD backoff = binary exponential (0~2ⁿ-1), give up at 16.</p>
+<p><b>Wireless</b> <span class="a">[有线CD vs 无线CA]</span>: hidden terminal (A/C unheard &rarr; collide at B) &rarr; <b>RTS/CTS</b>; exposed terminal (false busy). WiFi: per-frame ACK, no CD.</p>
+<p><b>2.4GHz</b> non-overlap only <b>1/6/11</b> <span class="a">[仅3个]</span>, crowded but thru-wall; <b>5GHz</b> more channels, less interference; 6GHz cleanest.</p>
+<p><b>Switch</b>: learn src MAC, unknown &rarr; flood, broadcast &rarr; always flood. <b>STP</b> (802.1D) prunes to loop-free tree <span class="a">[防广播风暴]</span> (root &rarr; root-port &rarr; block redundant). <b>VLAN</b> 802.1Q tag 4B, VID 0-4095.</p>
+</div>
+
+<!-- ===== T4 ===== -->
+<div class="blk c4"><span class="sec">T4 IP / TRANSPORT</span>
+<p><b>PDU + device per layer</b> <span class="a">[别混用]</span> Packet≠Frame≠Segment:</p>
+<table>
+<tr><th>layer</th><th>PDU</th><th>device</th></tr>
+<tr><td>App</td><td>Message/Data</td><td>Proxy, Gateway</td></tr>
+<tr><td>Transport</td><td>Segment/Datagram</td><td>—</td></tr>
+<tr><td>Network</td><td><b>Packet</b></td><td>Router</td></tr>
+<tr><td>Link</td><td><b>Frame</b></td><td>Switch, Bridge</td></tr>
+<tr><td>Physical</td><td>Bits</td><td>Hub, Repeater</td></tr>
+</table>
+<p><b>SDU</b> = payload a layer receives from the one above <span class="a">[上层数据=本层载荷]</span>. e.g. TCP's SDU = HTTP data; IP's SDU = TCP segment.</p>
+<p>Layering: separation / abstraction / interop. Encapsulation = each layer adds header, reads only its own. <b>End-to-end</b>: smart edge, dumb core. <b class="a">[Frame逐跳重封装·Packet端到端不变]</b> (except TTL).</p>
+<p class="mono"><b>IPv4 hdr 20B</b> (IHL≥5×4): Ver·IHL·DSCP·ECN·TotLen | ID·DF·MF·FragOff | TTL·Proto·HdrChksum | Src | Dst</p>
+<p><b>Proto</b>: 1=ICMP, 6=TCP, 17=UDP. TTL −1/hop &rarr;0 drop; changing TTL means recompute checksum <span class="a">[IPv6无此]</span>.</p>
+<table>
+<tr><th>special addr</th><th>meaning</th></tr>
+<tr><td class="mono">127/8</td><td>loopback</td></tr>
+<tr><td class="mono">169.254/16</td><td>link-local <span class="a">[DHCP失败]</span></td></tr>
+<tr><td class="mono">10/8·172.16/12·192.168/16</td><td>private RFC1918</td></tr>
+<tr><td class="mono">224/4</td><td>multicast (IGMP joins)</td></tr>
+</table>
+<p><b>Longest prefix match</b>: pick most specific (/24 over /16) <span class="a">[最具体优先]</span>. <b>Forwarding</b> (local lookup·data plane) vs <b>Routing</b> (global table build·control plane) <span class="a">[本地vs全局]</span>.</p>
+<p><b>ARP</b>: IP&rarr;MAC within LAN (bcast req·ucast reply·cache); Gratuitous ARP detects conflict/announces.</p>
+<p><b>ICMP</b> (Proto1): 0 EchoReply·8 EchoReq(ping)·11 TimeExceeded (traceroute = TTL increment) <span class="a">[TTL递增]</span>·3 DestUnreach.</p>
+<p><b>Fragment</b>: split if &gt;MTU, same ID, MF(more), Offset(×8B); <b>receiver reassembles</b> <span class="a">[接收端重组·一片丢全废]</span>. <b>PMTUD</b>: DF=1 + ICMP probes min MTU. MTU: Eth1500/WiFi~2300/PPPoE1492.</p>
+<p><b>IPv6</b>: 128bit, fixed 40B hdr, <b>no checksum / no broadcast / source-only fragment</b> <span class="a">[三大变化]</span>, + Anycast (nearest member, DNS root), SLAAC. NAT = "IPv6 killer".</p>
+</div>
+
+<div class="blk c4"><span class="sec">TCP vs UDP</span>
+<table>
+<tr><th></th><th>UDP</th><th>TCP</th></tr>
+<tr><td>conn</td><td>none</td><td>3-way handshake</td></tr>
+<tr><td>reliable/order</td><td>no</td><td>ACK+retx / ordered</td></tr>
+<tr><td>flow/cong</td><td>no</td><td>rwnd / AIMD</td></tr>
+<tr><td>header</td><td>8B</td><td>20+B</td></tr>
+<tr><td>use</td><td>DNS·RTP·games</td><td>HTTP·files</td></tr>
+</table>
+<p>Handshake SYN&rarr;SYN-ACK&rarr;ACK <span class="a">[各确认收发]</span>. Cumulative ACK. Socket = 5-tuple (proto,srcIP,srcPort,dstIP,dstPort). <b>NAPT</b> uses port to map inside hosts. Port = 16bit.</p>
+</div>
+
+<!-- ===== T5 ===== -->
+<div class="blk c5"><span class="sec">T5 DNS / DHCP</span>
+<p><b>DNS</b> = distributed / hierarchical / automated. root <b>.</b> &rarr; TLD &rarr; 2nd-level. Domain (admin boundary) vs Zone (data file) vs Delegation <span class="a">[边界vs数据]</span>.</p>
+<table>
+<tr><th>RR</th><th>role</th></tr>
+<tr><td>SOA</td><td>zone start (one/zone)</td></tr>
+<tr><td>A/AAAA</td><td>&rarr;IPv4/IPv6</td></tr>
+<tr><td>CNAME</td><td>alias</td></tr>
+<tr><td>MX</td><td>mail (w/ priority)</td></tr>
+<tr><td>NS</td><td>authoritative nameserver</td></tr>
+</table>
+<p><b>Recursive</b> (resolver does all) vs <b>iterative</b> (NS only points next) <span class="a">[客户端vs resolver]</span>. <b>UDP/53</b> default, large &rarr; TCP/53. 13 root IPs (A-M) + Anycast. TTL caches.</p>
+<p><b>DHCP DORA</b>: Discover(bcast)&rarr;Offer&rarr;Request(bcast, so losers reclaim) <span class="a">[让落选回收]</span>&rarr;Ack(lease).</p>
+</div>
+
+<div class="blk c5"><span class="sec">T5 HTTP / WEB</span>
+<p>Methods GET/HEAD/POST. Status 2xx OK·3xx redirect·4xx client(404)·5xx server. Stateless &rarr; Cookie/Token <span class="a">[无状态]</span>. 3rd-party cookie = cross-site tracking.</p>
+<p><b>Perf</b>: parallel (many TCP, costly) · persistent (1.1 reuse) · pipelining (HoL blocking) <span class="a">[队头阻塞]</span>. <b>Cache</b>: ETag/If-None-Match, Last-Modified/If-Modified-Since (Conditional GET) <span class="a">[没变不传]</span>. <b>Proxy</b> = cache-on-pull; <b>CDN</b> = push + DNS to nearest <span class="a">[拉vs推]</span>. HTTP/3 = QUIC/UDP, kills TCP HoL.</p>
+</div>
+
+<div class="blk c5"><span class="sec">T5 REALTIME</span>
+<p>best-effort net, 3 problems: <b>Latency</b> (overall slow) / <b>Jitter</b> (variance ~15ms) / <b>Loss</b>. <b class="a">[到太晚=丢]</b> equivalent loss = arrives past playout. Buffer: big=low-loss/high-delay, small=opposite.</p>
+<p>Fixes: retransmit (slow, rare here) · elastic buffer · <b>FEC</b> (send redundancy R=P1⊕P2⊕P3 ahead) <span class="a">[带宽换延迟]</span> · codec adapt. <b>RTP</b> (media, even port) / <b>RTCP</b> (feedback, odd port) / SIP (signalling) / DASH (HTTP adaptive).</p>
+</div>
+
+<div class="blk c5"><span class="sec">T5 MQTT / IoT</span>
+<p><b>Pub/Sub</b> decoupled: publisher &rarr; broker(1883) &rarr; subscriber, never direct <span class="a">[解耦]</span>. Compact binary, fixed hdr ≥2B. <b>+</b> = one level, <b>#</b> = this level &amp; below (end only, skips $SYS).</p>
+<table>
+<tr><th>QoS</th><th>pkts</th><th>guarantee</th></tr>
+<tr><td>0 fire&amp;forget</td><td>1</td><td>at most once</td></tr>
+<tr><td>1 PubAck</td><td>2</td><td>at least once (dup)</td></tr>
+<tr><td>2 Rec/Rel/Comp</td><td>4</td><td>exactly once</td></tr>
+</table>
+<p><b class="hl">effective QoS = min(pub, sub)</b> <span class="a">[取小]</span>, hop-by-hop not end-to-end. <b>Retain</b> = last value for new subs (empty msg clears) <span class="a">[给新订阅者]</span>. <b>LWT</b> = will on disconnect. Clean vs Persistent session (replays missed).</p>
+</div>
+
+<div class="blk c5"><span class="sec">T5 P2P / DHT</span>
+<p><b>BitTorrent</b>: piece 256/512KB, sub-piece 16KB; <b>Rarest First</b> <span class="a">[优先最稀有]</span> + Random start + Endgame; <b>Choking</b>: re-eval 10s, optimistic unchoke 30s, ~4 concurrent; Tracker gives peers not files; SHA-1. Seeder ranks by upload rate.</p>
+<p><b>DHT</b> (replaces Tracker): ring, KeyID&rarr;nearest successor NodeID (160bit), finger table &rarr; <b>O(log N) hops</b>; replicate to pred/succ vs churn. <b class="hl">exact lookup only, no wildcard/regex</b> <span class="a">[结构锁死查询]</span> (hash kills order) — same issue as MQTT wildcards.</p>
+</div>
+
+<div class="blk c5"><span class="sec">GUEST / GOPHER</span>
+<p><b>Gopher</b> (1991, TCP/70): minimal, selector &rarr; menu text + lone "." end; type 1 dir/0 text/7 search. Server-defined tree vs HTML hyperlink graph <span class="a">[谁定义结构]</span>. Free Web (1993) beat paid Gopher.</p>
+<p><b>Guest (Geoff Huston)</b>: IPv6 deploy ~40%+; bgp.potaroo.net for global BGP state.</p>
+</div>
+
+</div>
+
+<!-- ============ PAGE 2 : T6–T7 + SECURITY ============ -->
+<div class="page">
+<h1>COMP3310 · CHEATSHEET 2/2<span class="sub">T6 routing·BGP · T7 congestion·SNMP·security · exam traps</span></h1>
+
+<!-- ===== TRAP BOX ===== -->
+<div class="trapbox" style="column-span:all;column-count:2;column-gap:4mm;">
+<span class="sec" style="column-span:all;">&#9888; EXAM TRAPS <small>最易错</small></span>
+<ul>
+<li><b>BGP prepending &rarr; longer path &rarr; less preferred</b> <span class="a">[方向别反]</span> (for backup link). ≠ path injection (attack).</li>
+<li><b>effective QoS = min(pub, sub)</b> <span class="a">[取小]</span>; MQTT is hop-by-hop, not e2e.</li>
+<li><b>Fast Retransmit ≠ Fast Recovery</b>: FR = when to resend (3 dup-ACK); FRecovery = no Slow Start, MD only. <b>Tahoe has FR, no Fast Recovery; Reno has both</b> <span class="a">[易混]</span>.</li>
+<li><b>WIN (rcv buffer) ⟂ CWND (net estimate)</b> <span class="a">[完全无关]</span>. effective = min(W,WIN,CWND).</li>
+<li><b>Counter equal = trustworthy; Gauge equal = NOT</b> <span class="a">[计量陷阱]</span>. Counter32 wraps at 4.29B; 10Gbps wraps ~3.4s &rarr; Counter64.</li>
+<li><b>SNMP: agent = server, manager = client</b> <span class="a">[反直觉]</span>.</li>
+<li><b>Hierarchical routing "hop" unit changes</b> <span class="a">[量纲变了]</span>: routers &rarr; regions, 6&gt;5 not worse.</li>
+<li><b>Onion routing = telescoping</b> <span class="a">[逐跳建链]</span>, not 3 keys at once; timing analysis defeats encryption.</li>
+</ul>
+</div>
+
+<!-- ===== T6 ===== -->
+<div class="blk c6"><span class="sec">T6 ROUTING</span>
+<p><b>Optimality property</b>: sub-paths of a shortest path are also shortest <span class="a">[子路径也最短]</span>. <b>Sink/Source tree</b>: identical if cost symmetric, diverge if not <span class="a">[对称时一致]</span>. Unicast / Multicast (224/8 group) / Broadcast (domain only).</p>
+<table>
+<tr><th></th><th>Link-State</th><th>Dist-Vector</th></tr>
+<tr><td>algo</td><td>Dijkstra</td><td>Bellman-Ford</td></tr>
+<tr><td>knows</td><td>full topo (flood LSP)</td><td>neighbours + dist</td></tr>
+<tr><td>converge</td><td><b>fast</b></td><td>slow (rounds)</td></tr>
+<tr><td>scale</td><td>OK</td><td><b>better</b></td></tr>
+<tr><td>proto</td><td>OSPF/IS-IS (intra)</td><td>RIP (∞=16)</td></tr>
+</table>
+<p><b>Mnemonic</b>: Dijkstra trades global knowledge for convergence speed; Bellman-Ford trades convergence quality for scalability <span class="a">[口诀]</span>.</p>
+<p><b>Count-to-infinity</b> (bad news travels slow) <span class="a">[坏消息慢]</span> &rarr; Split Horizon / Poison Reverse. <b>ECMP</b> = equal-cost multipath (hash per flow). <b>Hierarchical</b>: aggregation shrinks tables, cost = suboptimal path <span class="a">[缩表换次优]</span>.</p>
+</div>
+
+<div class="blk c6"><span class="sec">T6 BGP <small>域间·策略</small></span>
+<p>Runs over <b>TCP/179</b>, <b>manually configured</b> peers, <b>Path Vector</b> (full AS path, not distance). AS Path: (1) loop detect — own ASN &rarr; drop; (2) policy scoring.</p>
+<p><b>Prepending</b>: repeat own ASN to look longer <span class="a">[更长=更不优]</span> &rarr; steer to backup. <b>eBGP</b> (inter-AS): prepend ASN + rewrite next-hop at boundary. <b>iBGP</b> (intra-AS): sync external routes, full-mesh, iBGP-learned not re-advertised over iBGP; OSPF/IS-IS resolves next-hop.</p>
+<p><b>Transit</b> (paid, full reach) vs <b>Peering</b> (free, no transit) <span class="a">[付费vs互通]</span>. <b>Hot potato</b> = dump early &rarr; asymmetric paths. <b>Local-Pref</b> = main outbound policy lever <span class="a">[出向主战场]</span>. Control plane right&rarr;left vs data left&rarr;right <span class="a">[方向相反]</span>. RIB&rarr;FIB. No native security (RPKI ~50%, BGPsec ≈0).</p>
+</div>
+
+<!-- ===== T7a ===== -->
+<div class="blk c7a"><span class="sec">T7a CONGESTION / TCP</span>
+<p><b>BDP</b> = 2×BW×delay = in-flight data <span class="a">[在途数据]</span>. 3 windows: <b>W</b> (sender, BDP) · <b>WIN</b> (rcv buffer) · <b>CWND</b> (net estimate), send = min(all). Congestion collapse: retx floods &rarr; goodput&rarr;0.</p>
+<p><b>AIMD</b> = additive-up (+1/RTT) · multiplicative-down (×0.5) <span class="a">[慢加快减]</span> &rarr; sawtooth. <b>Slow Start</b>: CWND=1, double/RTT (actually exponential) <span class="a">[名字反了]</span>, loss &rarr; ssthresh=½ &rarr; AI.</p>
+<table>
+<tr><th>recovery</th><th>mechanism</th></tr>
+<tr><td>Fast Retransmit</td><td>3 dup-ACK &rarr; resend that seg</td></tr>
+<tr><td>Fast Recovery</td><td>no Slow Start, MD only</td></tr>
+<tr><td>NewReno</td><td>partial ACK &rarr; multi per RTT</td></tr>
+<tr><td>SACK</td><td>exact received, ≤4 blocks</td></tr>
+</table>
+<p><b>Cong signals</b>: loss (too late) / delay (jitter-sensitive) / <b>ECN</b> (router marks IP hdr, zero extra traffic, needs full-path support) <span class="a">[需全路径支持]</span>. ACK clocking = self-clock. Variants: Tahoe/Reno/Vegas (starved by Reno) <span class="a">[被饿死]</span>/CUBIC (Linux def)/BBR (Google, BW+RTT).</p>
+</div>
+
+<!-- ===== T7b ===== -->
+<div class="blk c7b"><span class="sec">T7b MEASUREMENT / SNMP</span>
+<p>End-to-end test (speedtest) can't tell which hop fails &rarr; query devices directly. Monitoring must not burden device (Seattle router: 60s poll dropped 90% traffic) <span class="a">[别加负担]</span>.</p>
+<table>
+<tr><th>part</th><th>role</th></tr>
+<tr><td>Agent</td><td><b>Server</b> (monitored device)</td></tr>
+<tr><td>Manager</td><td><b>Client</b> (NMS)</td></tr>
+<tr><td>MIB</td><td>data model (ASN.1/OID)</td></tr>
+</table>
+<p>Over <b>UDP</b>; agent on <b>161</b>, manager <b>162</b> (traps). Agent very light: no rate / no history / no absolute clock (TimeTicks=1/100s) <span class="a">[极轻]</span>.</p>
+<p><b>5 PDU</b>: Get/GetNext/Set/Response/Trap. <b>6 Trap</b>: linkDown/Up · <b>coldStart</b> (unexpected reboot) / warmStart (planned) <span class="a">[意外vs预期]</span> · authFail · <b>egpNeighbourLoss</b> (BGP peer gone, may go offline) <span class="a">[可能失联]</span>.</p>
+<p><b>Counter</b> (up only, wraps to 0, C32/C64) vs <b>Gauge</b> (up/down, latches at max) <span class="a">[满则停]</span>. Rate: Δ&lt;0 = wrap or reboot (check sysUpTime). <b>GetNext</b> walks table in lexical order; <b>GetBulk</b> (v2) fetches a block (≤64KB UDP).</p>
+<p>OID: 1.3.6.1.2.1=mib-2, .4=vendor private. <b>v1</b> plaintext community / <b>v2c</b> +GetBulk+C64 / <b>v3</b> 3 levels: noAuthNoPriv·authNoPriv·authPriv.</p>
+</div>
+
+<!-- ===== T7c ===== -->
+<div class="blk c7c"><span class="sec">T7c CRYPTO</span>
+<p><b>4 properties</b>: Confidentiality · Authentication (+ non-repudiation) · Integrity · Freshness (anti-replay).</p>
+<table>
+<tr><th></th><th>symmetric</th><th>asymmetric</th></tr>
+<tr><td>keys</td><td>1 shared</td><td>pub+priv pair</td></tr>
+<tr><td>speed</td><td>fast (GB/s)</td><td>slow 100-10⁴×</td></tr>
+<tr><td>weakness</td><td>key distribution</td><td>pubkey ownership (PKI)</td></tr>
+<tr><td>algo</td><td>AES/ChaCha20</td><td>RSA2048/ECC256/DH</td></tr>
+</table>
+<p><b>Hybrid (=TLS)</b>: asymmetric opens, symmetric (AES-GCM) carries data <span class="a">[非对称开局]</span>. <b>Forward secrecy</b>: ephemeral DH (g^ab, a/b discarded) &rarr; future key leak can't decrypt past <span class="a">[用完即扔]</span>. <b>Modes</b>: ECB (never)/CBC (POODLE)/<b>GCM</b> (AEAD, modern) <span class="a">[首选]</span>.</p>
+<p><b>PKI</b>: CA signs X.509, ~88 root certs. <b>Revocation broken</b> (CRL won't scale) <span class="a">[撤销失效]</span>. <b>TLS</b> sits between transport &amp; app, handshake before first HTTP req <span class="a">[握手在前]</span>; UDP = DTLS. Post-quantum: Shor breaks RSA/ECC, AES-256 OK if doubled.</p>
+</div>
+
+<div class="blk c7c"><span class="sec">T7c FIREWALL / VPN</span>
+<table>
+<tr><th>firewall</th><th>inspects</th></tr>
+<tr><td>Stateless</td><td>per-packet · IP/port (deny all)</td></tr>
+<tr><td>Stateful</td><td>tracks flow (NAT reply)</td></tr>
+<tr><td>App/DPI</td><td>reassemble content (costly, can't see encrypted)</td></tr>
+</table>
+<p><b>DMZ</b> = 2 firewalls (ext &rarr; fw1 &rarr; DMZ svc &rarr; fw2 &rarr; internal). ~80% attacks are internal <span class="a">[内部威胁]</span>.</p>
+<p><b>VPN</b> = IP-in-IP + IPsec (ESP encrypt + auth). Modes: <b>Tunnel</b> (router↔router, common) / Transport (host↔host) / Mixed (worker&rarr;gateway). Hides real src/dst. <b>TunnelVision</b>: DHCP option 121 pushes two /1 routes (more specific than /0) &rarr; bypasses VPN <span class="a">[架空VPN]</span>.</p>
+</div>
+
+<div class="blk c7c"><span class="sec">T7c ATTACKS</span>
+<table>
+<tr><th>attack</th><th>key / defence</th></tr>
+<tr><td><b>DHCP poison</b></td><td>drain pool + impersonate &rarr; set Gateway/DNS. Def: DHCP Snooping</td></tr>
+<tr><td><b>ARP poison</b></td><td>Gratuitous ARP &rarr; MitM. Def: DAI (hard)</td></tr>
+<tr><td><b>BGP hijack</b></td><td>more-specific prefix / path injection &rarr; global leak</td></tr>
+<tr><td><b>DNS cache poison</b></td><td>spoof src IP + guess 16-bit ID + race <span class="a">[攻边缘resolver]</span></td></tr>
+<tr><td><b>SYN flood</b></td><td>no final ACK, drains state. Def: <b>SYN cookies</b></td></tr>
+</table>
+<p><b>DNSSEC</b> (integrity + authenticity, NOT confidentiality) <span class="a">[不做机密]</span>: <b>RRSIG</b> (signs RR set) · <b>DNSKEY</b> (KSK signs ZSK, ZSK signs records) · <b>DS</b> (parent &rarr; child KSK) · NSEC (leaks zone &rarr; NSEC3) <span class="a">[泄露zone]</span>. Trust anchor = root key (hardcoded).</p>
+<p><b>Amplification</b> <span class="a">[两个乘子]</span>: host mult (botnet/IoT) + packet mult (SMURF / DNS / Memcache). <b>Spoofing</b> fix = <b>Ingress filtering</b> (ISP only; undeployed — protects others not self) <span class="a">[只护别人]</span>. DDoS: CDN + upstream black-hole.</p>
+</div>
+
+<div class="blk c7c"><span class="sec">T7c ONION / WIFI-SEC</span>
+<p><b>Onion (Tor)</b>: Guard (src not dst)/Middle/Exit (dst not src), <b>telescoping per-hop key</b> <span class="a">[逐跳建链]</span>, layered. Exit sees dst &rarr; still need app crypto. <b>Timing analysis defeats layered encryption</b> <span class="a">[时序防不住]</span>. vs MPLS (pins whole path) = more fragile.</p>
+<table>
+<tr><th>WiFi</th><th>break</th></tr>
+<tr><td>WEP (RC4)</td><td>broken in minutes · avoid</td></tr>
+<tr><td>WPA (TKIP&rarr;CCMP)</td><td>WPS flaw</td></tr>
+<tr><td>WPA2</td><td>KRACK / KR00K</td></tr>
+<tr><td>WPA3 (SAE)</td><td>Dragonblood (huge compute)</td></tr>
+</table>
+<p>Handshake sends no plaintext password: both derive PTK from MAC+nonce+pwd, exchange result+MIC <span class="a">[不传明文]</span>. Enterprise = 802.1X/EAP/RADIUS (no shared PSK). <b>AP identity unverifiable</b> &rarr; fake SSID <span class="a">[无法验AP]</span>; downgrade / SSL strip (HSTS defends). Golden rule: <b>no predictable plaintext</b> <span class="a">[可预测=被破]</span>. Harvest-then-decrypt: store now, crack later.</p>
+</div>
+
+</div>
