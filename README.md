@@ -21,6 +21,8 @@ Topics move from **In Progress → Done** as learning milestones are completed.
 - FastAPI
 - Git
 - PostgreSQL
+- Computer Architecture (sets 1-9, English notes)
+- Networks (weeks 1-11, English notes)
 ---
 
 ## 📂 Structure
@@ -35,4 +37,4 @@ This repository is **learning-focused**, not production-ready.
 
 ---
 
-_Last updated: 21/01/26_
+_Last updated: 06/11/26_
